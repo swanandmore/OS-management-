@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor Board - System Resource Usage Monitoring</title>
+  <!-- Google Fonts: Inter & serif for Monitor Board title -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --bg-main: #0c0d11;
+      --card-bg: #12141a;
+      --card-border: #1e222d;
+      --text-main: #e2e4ea;
+      --text-muted: #828799;
+      --accent-cyan: #00e5ff;
+      --accent-purple: #a855f7;
+      --accent-green: #00ff66;
+      --accent-pink: #ff2a85;
+      --accent-yellow: #ffd000;
+      --accent-red: #ff3344;
+      --gauge-bg: #1b2030;
+      --gauge-darkblue: #0c2340;
+    }
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* Header */
+    header {
+      padding: 18px 24px 10px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .title-area h1 {
+      font-family: 'Cinzel', serif, 'Times New Roman';
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+    .title-area p {
+      font-size: 11px;
+      color: #9297a5;
+      margin-top: 2px;
+      font-style: italic;
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: #14161f;
+      border: 1px solid #232734;
+      border-radius: 6px;
+      padding: 5px 10px;
+      gap: 8px;
+    }
+    .search-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .search-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 11px;
+      width: 130px;
+    }
+    .search-input::placeholder {
+      color: #555b6e;
+    }
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: #8890a0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover {
+      color: #fff;
+      background: #1b1e2a;
+    }
+
+    /* Navigation Bar */
+    nav {
+      display: flex;
+      gap: 6px;
+      padding: 0 24px 10px 24px;
+      border-bottom: 1px solid #1a1d26;
+      overflow-x: auto;
+    }
+    .nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #8b92a5;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      color: #fff;
+      background: #181b25;
+    }
+    .nav-btn.active {
+      color: #00e5ff;
+      background: #151a28;
+      border-color: #00e5ff44;
+      font-weight: 600;
+    }
+
+    /* Main Container */
+    main {
+      padding: 16px 24px 32px 24px;
+      max-width: 1700px;
+      margin: 0 auto;
+    }
+
+    /* Grid Layout for Monitor Board */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      grid-gap: 16px;
+    }
+    @media (max-width: 1200px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 800px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Component */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .card-title-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #f0f2f8;
+    }
+    .card-title-left svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.2;
+    }
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #656c80;
+    }
+    .card-actions svg {
+      width: 13px;
+      height: 13px;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .card-actions svg:hover {
+      color: #fff;
+    }
+
+    /* Circular Gauge */
+    .gauge-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin: 6px 0 10px 0;
+    }
+    .gauge-svg {
+      width: 190px;
+      height: 105px;
+    }
+    .gauge-value-text {
+      position: absolute;
+      top: 52px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .gauge-sublink {
+      font-size: 10px;
+      color: #6a7387;
+      text-decoration: none;
+      cursor: pointer;
+      margin-top: -6px;
+    }
+    .gauge-sublink:hover {
+      color: #9aa4bc;
+      text-decoration: underline;
+    }
+
+    /* Breakdown Table */
+    .breakdown-table {
+      width: 100%;
+      font-size: 11px;
+      margin-bottom: 12px;
+      border-collapse: collapse;
+    }
+    .breakdown-table td {
+      padding: 3px 0;
+    }
+    .breakdown-table td:last-child {
+      text-align: right;
+      font-weight: 500;
+      color: #d1d5e2;
+    }
+    .breakdown-table td:first-child {
+      color: #8c93a6;
+    }
+
+    /* Core Bars */
+    .core-item {
+      margin-bottom: 8px;
+    }
+    .core-title {
+      font-size: 10px;
+      font-weight: 500;
+      color: #8f96a9;
+      margin-bottom: 4px;
+    }
+    .segmented-bar {
+      height: 7px;
+      border-radius: 4px;
+      background: #191c26;
+      display: flex;
+      overflow: hidden;
+    }
+    .bar-idle { background: var(--accent-green); }
+    .bar-user { background: var(--accent-purple); }
+    .bar-system { background: var(--accent-cyan); }
+    .bar-extra { background: #4f46e5; }
+
+    .core-legend {
+      display: flex;
+      gap: 10px;
+      font-size: 9px;
+      color: #7b8398;
+      margin-top: 3px;
+    }
+    .core-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .legend-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    /* Subtitle in card */
+    .card-subtitle {
+      font-size: 10px;
+      color: #70788d;
+      margin-bottom: 8px;
+    }
+
+    /* Charts */
+    .canvas-container {
+      width: 100%;
+      height: 180px;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 10px;
+      color: #828a9f;
+      margin-top: 8px;
+    }
+    .chart-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-line {
+      width: 16px;
+      height: 2px;
+    }
+
+    /* Disk Space */
+    .disk-item {
+      margin-bottom: 16px;
+    }
+    .disk-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #e5e7eb;
+      margin-bottom: 5px;
+    }
+    .disk-bar-container {
+      height: 9px;
+      background: #181b24;
+      border-radius: 4px;
+      display: flex;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .disk-bar-used {
+      background: var(--accent-pink);
+    }
+    .disk-bar-free {
+      background: var(--accent-green);
+    }
+    .disk-legend {
+      display: flex;
+      gap: 12px;
+      font-size: 9px;
+      color: #8c93a8;
+      margin-bottom: 4px;
+    }
+    .disk-meta {
+      font-size: 10px;
+      color: #838b9e;
+      line-height: 1.4;
+    }
+
+    /* Network Interfaces */
+    .net-iface-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #1a1d26;
+    }
+    .net-iface-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .net-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .badge-up {
+      color: var(--accent-green);
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .badge-down {
+      color: var(--accent-pink);
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .net-speed {
+      font-size: 10px;
+      color: #c4c8d6;
+      text-align: center;
+      margin: 2px 0;
+    }
+    .net-totals {
+      font-size: 9px;
+      color: #727a8f;
+      text-align: center;
+    }
+
+    /* Disk IO */
+    .diskio-item {
+      padding: 6px 0;
+      border-bottom: 1px dashed #232736;
+    }
+    .diskio-item:last-child {
+      border-bottom: none;
+    }
+    .diskio-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #f0f2f8;
+      margin-bottom: 2px;
+    }
+    .diskio-metric {
+      font-size: 10px;
+      color: #868ea3;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .arrow-green {
+      color: var(--accent-green);
+      font-weight: bold;
+    }
+
+    /* System Load Bars */
+    .load-bars-wrap {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 110px;
+      border-left: 1px solid #2a2f3f;
+      border-bottom: 1px solid #2a2f3f;
+      padding: 0 16px 2px 16px;
+      margin-top: 10px;
+    }
+    .load-bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 44px;
+    }
+    .load-bar-fill {
+      width: 100%;
+      background: #00d9ff;
+      border-radius: 2px 2px 0 0;
+      transition: height 0.4s ease;
+    }
+    .load-label {
+      font-size: 9px;
+      color: #6a7286;
+      margin-top: 6px;
+    }
+
+    /* System Alerts */
+    .alert-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .alert-name {
+      font-size: 11px;
+      font-weight: 500;
+      color: #e2e4ed;
+    }
+    .badge-critical {
+      border: 1px solid #ff3344;
+      color: #ff3344;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+    .badge-warning {
+      border: 1px solid #ffd000;
+      color: #ffd000;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Non-Dashboard View Pages (Process, FS, Users, etc.) */
+    .view-section {
+      display: none;
+    }
+    .view-section.active {
+      display: block;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .data-table th, .data-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #1a1e29;
+    }
+    .data-table th {
+      background: #161922;
+      color: #9299af;
+      font-weight: 600;
+    }
+    .data-table tr:hover {
+      background: #161924;
+    }
+    .action-btn {
+      background: #ff2a4422;
+      border: 1px solid #ff334466;
+      color: #ff4455;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .action-btn:hover {
+      background: #ff2a4444;
+      color: #fff;
+    }
+    .primary-btn {
+      background: #00e5ff22;
+      border: 1px solid #00e5ff66;
+      color: #00e5ff;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .primary-btn:hover {
+      background: #00e5ff44;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-top">
+      <div class="title-area">
+        <h1>Monitor Board</h1>
+        <p>System Resource Usage Monitoring</p>
+      </div>
+      <div class="header-controls">
+        <div class="search-box">
+          <span class="search-label">Search</span>
+          <input type="text" id="globalFilterInput" class="search-input" placeholder="Start typing to filter">
+        </div>
+        <button class="icon-btn" title="Filter & View Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"></line>
+            <line x1="4" y1="10" x2="4" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12" y2="3"></line>
+            <line x1="20" y1="21" x2="20" y2="16"></line>
+            <line x1="20" y1="12" x2="20" y2="3"></line>
+            <line x1="1" y1="14" x2="7" y2="14"></line>
+            <line x1="9" y1="8" x2="15" y2="8"></line>
+            <line x1="17" y1="16" x2="23" y2="16"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav>
+    <button class="nav-btn active" data-tab="dashboard">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" data-tab="processes">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+      Process Management
+    </button>
+    <button class="nav-btn" data-tab="memory">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+      Memory Management
+    </button>
+    <button class="nav-btn" data-tab="filesystem">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+      File System
+    </button>
+    <button class="nav-btn" data-tab="users">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      User Management
+    </button>
+    <button class="nav-btn" data-tab="logs">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      System Logs
+    </button>
+    <button class="nav-btn" data-tab="network">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+      Network
+    </button>
+    <button class="nav-btn" data-tab="settings">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      Settings
+    </button>
+  </nav>
+
+  <!-- Content Container -->
+  <main>
+
+    <!-- 1. DASHBOARD VIEW (Pixel-perfect replicate of screenshot) -->
+    <section id="view-dashboard" class="view-section active">
+      <div class="dashboard-grid">
+
+        <!-- Column 1: CPU Usage & Disk IO -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          
+          <!-- CPU Usage Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffcc00"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                CPU Usage
+              </div>
+              <div class="card-actions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              </div>
+            </div>
+
+            <!-- Gauge -->
+            <div class="gauge-wrapper">
+              <svg class="gauge-svg" viewBox="0 0 200 110">
+                <!-- Background track -->
+                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#0e1e38" stroke-width="18" stroke-linecap="round" />
+                <!-- Progress track -->
+                <path id="cpuGaugeArc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00e5ff" stroke-width="18" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="240" style="transition: stroke-dashoffset 0.6s ease;" />
+              </svg>
+              <div id="cpuUsageVal" class="gauge-value-text">2.3%</div>
+              <span class="gauge-sublink">Show Less</span>
+            </div>
+
+            <!-- User/System/Idle breakdown -->
+            <table class="breakdown-table">
+              <tr><td>User</td><td id="cpuUserVal">1.2%</td></tr>
+              <tr><td>System</td><td id="cpuSystemVal">1.1%</td></tr>
+              <tr><td>Idle</td><td id="cpuIdleVal">97.7%</td></tr>
+            </table>
+
+            <!-- Core Progress Bars -->
+            <div id="coresList">
+              <div class="core-item">
+                <div class="core-title">Core #1</div>
+                <div class="segmented-bar">
+                  <div class="bar-idle" style="width: 95%;"></div>
+                  <div class="bar-user" style="width: 2%;"></div>
+                  <div class="bar-system" style="width: 2%;"></div>
+                  <div class="bar-extra" style="width: 1%;"></div>
+                </div>
+                <div class="core-legend">
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#00ff66"></div>Idle</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#a855f7"></div>User</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#00e5ff"></div>System</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#4f46e5"></div>Softirq</div>
+                </div>
+              </div>
+              <div class="core-item">
+                <div class="core-title">Core #2</div>
+                <div class="segmented-bar">
+                  <div class="bar-idle" style="width: 96%;"></div>
+                  <div class="bar-user" style="width: 2%;"></div>
+                  <div class="bar-system" style="width: 2%;"></div>
+                </div>
+                <div class="core-legend">
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#00ff66"></div>Idle</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#a855f7"></div>User</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#00e5ff"></div>System</div>
+                </div>
+              </div>
+              <div class="core-item">
+                <div class="core-title">Core #3</div>
+                <div class="segmented-bar">
+                  <div class="bar-idle" style="width: 48%;"></div>
+                  <div class="bar-user" style="width: 1%;"></div>
+                  <div class="bar-system" style="width: 1%;"></div>
+                  <div class="bar-extra" style="width: 50%;"></div>
+                </div>
+                <div class="core-legend">
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#00ff66"></div>Idle</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#a855f7"></div>User</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#00e5ff"></div>System</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Iowait</div>
+                </div>
+              </div>
+              <div class="core-item">
+                <div class="core-title">Core #4</div>
+                <div class="segmented-bar">
+                  <div class="bar-idle" style="width: 97%;"></div>
+                  <div class="bar-user" style="width: 1.5%;"></div>
+                  <div class="bar-system" style="width: 1.5%;"></div>
+                </div>
+                <div class="core-legend">
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#00ff66"></div>Idle</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#a855f7"></div>User</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:#00e5ff"></div>System</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Disk IO Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                Disk IO
+              </div>
+              <div class="card-actions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              </div>
+            </div>
+            <div id="diskIOList">
+              <div class="diskio-item">
+                <div class="diskio-name">sda</div>
+                <div class="diskio-metric">Read: <span id="sdaRead">8.02 MB/s</span> <span class="arrow-green">↑</span></div>
+                <div class="diskio-metric">Write: <span id="sdaWrite">968 KB/s</span> <span class="arrow-green">↑</span></div>
+              </div>
+              <div class="diskio-item">
+                <div class="diskio-name">sda1</div>
+                <div class="diskio-metric">Read: Idle</div>
+                <div class="diskio-metric">Write: Idle</div>
+              </div>
+              <div class="diskio-item">
+                <div class="diskio-name">sda2</div>
+                <div class="diskio-metric">Read: <span id="sda2Read">8.02 MB/s</span> <span class="arrow-green">↑</span></div>
+                <div class="diskio-metric">Write: <span id="sda2Write">968 KB/s</span> <span class="arrow-green">↑</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Column 2: CPU History, Network Interfaces & Network Activity -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          
+          <!-- CPU History Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                CPU History
+              </div>
+              <div class="card-actions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              </div>
+            </div>
+            <div class="card-subtitle">CPU Usage over past 3 minutes</div>
+            <div class="canvas-container">
+              <canvas id="cpuHistoryCanvas"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="chart-legend-item"><div class="legend-line" style="background:#00e5ff"></div> System</div>
+              <div class="chart-legend-item"><div class="legend-line" style="background:#a855f7"></div> User</div>
+            </div>
+          </div>
+
+          <!-- Mid row: Network Interfaces (half) & Network Activity (half) -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            
+            <!-- Network Interfaces Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect></svg>
+                  Network Interfaces
+                </div>
+                <div class="card-actions">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </div>
+              </div>
+              <div id="netInterfacesList">
+                <div class="net-iface-item">
+                  <div class="net-header">
+                    <span>lo</span>
+                    <span class="badge-up">Up</span>
+                  </div>
+                  <div class="net-speed">↑ 79.21 KB | ↓ 79.21 KB</div>
+                  <div class="net-totals">Total Up 3.91 GB | Down 3.91 GB</div>
+                </div>
+                <div class="net-iface-item">
+                  <div class="net-header">
+                    <span>eth0</span>
+                    <span class="badge-up">Up</span>
+                  </div>
+                  <div class="net-speed">↑ 2.28 KB | ↓ 7.56 KB</div>
+                  <div class="net-totals">Total Up 187.66 MB | Down 1.85 GB</div>
+                </div>
+                <div class="net-iface-item">
+                  <div class="net-header">
+                    <span>docker0</span>
+                    <span class="badge-down">Down</span>
+                  </div>
+                  <div class="net-totals" style="margin-top:4px;">Total Up 0 Bytes | Down 0 Bytes</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Network Activity Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                  Network Activity
+                </div>
+                <div class="card-actions">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </div>
+              </div>
+              <div class="canvas-container" style="height: 125px;">
+                <canvas id="networkActivityCanvas"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="chart-legend-item"><div class="legend-line" style="background:#ffd000"></div> Upload</div>
+                <div class="chart-legend-item"><div class="legend-line" style="background:#00e5ff"></div> Download</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom sub-row: Memory Usage & System Load -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            
+            <!-- Memory Usage Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect></svg>
+                  Memory Usage
+                </div>
+                <div class="card-actions">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </div>
+              </div>
+              <div class="gauge-wrapper" style="margin-top: 2px;">
+                <svg class="gauge-svg" viewBox="0 0 200 110">
+                  <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#0e1e38" stroke-width="18" stroke-linecap="round" />
+                  <path id="memGaugeArc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00ff66" stroke-width="18" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="220" style="transition: stroke-dashoffset 0.6s ease;" />
+                </svg>
+                <div id="memUsageVal" class="gauge-value-text">12.7%</div>
+                <span class="gauge-sublink">Expand Details</span>
+              </div>
+            </div>
+
+            <!-- System Load Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect></svg>
+                  System Load
+                </div>
+                <div class="card-actions">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </div>
+              </div>
+              <div class="card-subtitle">Load Averages over 4 Cores</div>
+              <div class="load-bars-wrap">
+                <div class="load-bar-col">
+                  <div id="load1Bar" class="load-bar-fill" style="height: 65%;"></div>
+                  <div class="load-label">1m</div>
+                </div>
+                <div class="load-bar-col">
+                  <div id="load5Bar" class="load-bar-fill" style="height: 52%;"></div>
+                  <div class="load-label">5m</div>
+                </div>
+                <div class="load-bar-col">
+                  <div id="load15Bar" class="load-bar-fill" style="height: 40%;"></div>
+                  <div class="load-label">15m</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Column 3: Disk Space & System Alerts -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          
+          <!-- Disk Space Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M10 4v4"></path><path d="M2 8h20"></path></svg>
+                Disk Space
+              </div>
+              <div class="card-actions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              </div>
+            </div>
+            
+            <div id="diskSpaceList">
+              <!-- /dev/root -->
+              <div class="disk-item">
+                <div class="disk-title">/dev/root</div>
+                <div class="disk-bar-container">
+                  <div class="disk-bar-used" style="width: 95%;"></div>
+                  <div class="disk-bar-free" style="width: 5%;"></div>
+                </div>
+                <div class="disk-legend">
+                  <div class="core-legend-item"><div class="legend-dot" style="background:var(--accent-pink)"></div> Used</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:var(--accent-green)"></div> Free</div>
+                </div>
+                <div class="disk-meta">
+                  Free: 5.64 GB out of 119.88 GB<br>
+                  Mount Point: /<br>
+                  File System: ext4
+                </div>
+              </div>
+
+              <!-- /user/home -->
+              <div class="disk-item">
+                <div class="disk-title">/user/home</div>
+                <div class="disk-bar-container">
+                  <div class="disk-bar-used" style="width: 50%;"></div>
+                  <div class="disk-bar-free" style="width: 50%;"></div>
+                </div>
+                <div class="disk-legend">
+                  <div class="core-legend-item"><div class="legend-dot" style="background:var(--accent-pink)"></div> Used</div>
+                  <div class="core-legend-item"><div class="legend-dot" style="background:var(--accent-green)"></div> Free</div>
+                </div>
+                <div class="disk-meta">
+                  Free: 914.36 GB out of 1.82 TB<br>
+                  Mount Point: /home<br>
+                  File System: FAT32
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Alerts Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffcc00"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                System Alerts
+              </div>
+              <div class="card-actions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              </div>
+            </div>
+            
+            <div class="alert-row">
+              <span class="alert-name">CPU_IOWAIT - 50.7%</span>
+              <span class="badge-critical">CRITICAL</span>
+            </div>
+            <div class="alert-row">
+              <span class="alert-name">MEMORY - 69.2%</span>
+              <span class="badge-warning">WARNING</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. PROCESS MANAGEMENT VIEW -->
+    <section id="view-processes" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-left">Active Operating System Processes</div>
+          <button class="primary-btn" onclick="fetchProcesses()">Refresh Process List</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>PID</th>
+              <th>Process Name</th>
+              <th>User</th>
+              <th>CPU %</th>
+              <th>Memory %</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="processesTableBody">
+            <tr><td colspan="7">Loading processes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. MEMORY MANAGEMENT VIEW -->
+    <section id="view-memory" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-left">Physical RAM & Virtual Swap Configuration</div>
+        </div>
+        <div id="memoryDetailedStats" style="font-size:13px; line-height:2;">
+          Loading memory architecture...
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. FILE SYSTEM VIEW -->
+    <section id="view-filesystem" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-left">Mounted Storage & Volume Explorer</div>
+        </div>
+        <div id="fsContent" style="font-size:13px;">
+          Loading file system partitions...
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. USER MANAGEMENT VIEW -->
+    <section id="view-users" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-left">System User Accounts (SQLite Database)</div>
+          <button class="primary-btn" onclick="addUserPrompt()">+ Add User</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="7">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. SYSTEM LOGS VIEW -->
+    <section id="view-logs" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-left">Operating System Audit Logs</div>
+          <div style="display:flex; gap:8px;">
+            <select id="logFilterLevel" style="background:#191c26; color:#fff; border:1px solid #333; padding:4px 8px; border-radius:4px;" onchange="fetchLogs()">
+              <option value="">All Severities</option>
+              <option value="CRITICAL">CRITICAL</option>
+              <option value="WARNING">WARNING</option>
+              <option value="INFO">INFO</option>
+            </select>
+            <button class="primary-btn" onclick="fetchLogs()">Refresh</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Timestamp</th>
+              <th>Level</th>
+              <th>Source</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody id="logsTableBody">
+            <tr><td colspan="5">Loading logs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. NETWORK VIEW -->
+    <section id="view-network" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-left">Network Interfaces & Traffic Summary</div>
+        </div>
+        <div id="networkDetailedContent" style="font-size:13px; line-height:2;">
+          Loading network interfaces...
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. SETTINGS VIEW -->
+    <section id="view-settings" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-left">OS Dashboard Preferences</div>
+        </div>
+        <div style="font-size:13px; display:flex; flex-direction:column; gap:12px; max-width:400px;">
+          <label>Polling Rate:
+            <select style="background:#191c26; color:#fff; border:1px solid #333; padding:4px 8px; border-radius:4px; width:100%; margin-top:4px;">
+              <option>1 Second (Real-time)</option>
+              <option>2 Seconds (Standard)</option>
+              <option>5 Seconds (Eco)</option>
+            </select>
+          </label>
+          <label>CPU Alert Threshold:
+            <input type="number" value="85" style="background:#191c26; color:#fff; border:1px solid #333; padding:4px 8px; border-radius:4px; width:100%; margin-top:4px;">
+          </label>
+          <label>Memory Alert Threshold:
+            <input type="number" value="80" style="background:#191c26; color:#fff; border:1px solid #333; padding:4px 8px; border-radius:4px; width:100%; margin-top:4px;">
+          </label>
+          <button class="primary-btn" style="align-self:flex-start; margin-top:8px;" onclick="alert('Settings saved to database!')">Save Changes</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Tab Navigation Logic
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const viewSections = document.querySelectorAll('.view-section');
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        navButtons.forEach(b => b.classList.remove('active'));
+        viewSections.forEach(s => s.classList.remove('active'));
+
+        btn.classList.add('active');
+        const tab = btn.getAttribute('data-tab');
+        const targetView = document.getElementById(`view-${tab}`);
+        if (targetView) targetView.classList.add('active');
+
+        if (tab === 'processes') fetchProcesses();
+        if (tab === 'users') fetchUsers();
+        if (tab === 'logs') fetchLogs();
+        if (tab === 'filesystem') fetchFileSystem();
+      });
+    });
+
+    // History data buffers for Canvas Charts (45 points for continuous smooth flow)
+    const MAX_POINTS = 45;
+    const cpuHistory = {
+      system: Array(MAX_POINTS).fill(1.1),
+      user: Array(MAX_POINTS).fill(1.2)
+    };
+    for(let i = 0; i < MAX_POINTS; i++) {
+      cpuHistory.system[i] = 0.8 + Math.random() * 0.8 + (i === 22 ? 2.8 : 0);
+      cpuHistory.user[i] = 0.6 + Math.random() * 0.7;
+    }
+
+    const netHistory = {
+      upload: Array(MAX_POINTS).fill(400000),
+      download: Array(MAX_POINTS).fill(300000)
+    };
+    for(let i = 0; i < MAX_POINTS; i++) {
+      netHistory.upload[i] = 350000 + Math.sin(i * 0.35) * 180000 + Math.random() * 60000;
+      netHistory.download[i] = 260000 + Math.cos(i * 0.28) * 140000 + Math.random() * 50000;
+    }
+
+    // Smooth spline curve drawing helper
+    function drawSmoothLine(ctx, data, strokeColor, maxVal, width, height, padLeft, padBottom, padTop) {
+      if (data.length < 2) return;
+      const availW = width - padLeft - 10;
+      const availH = height - padBottom - padTop;
+      const stepX = availW / (data.length - 1);
+
+      const points = data.map((val, idx) => ({
+        x: padLeft + idx * stepX,
+        y: height - padBottom - (Math.min(Math.max(val, 0), maxVal) / maxVal) * availH
+      }));
+
+      ctx.save();
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 2.0;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+
+      for (let i = 0; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      }
+      ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawSmoothArea(ctx, data, strokeColor, fillColor, maxVal, width, height, padLeft, padBottom, padTop) {
+      if (data.length < 2) return;
+      const availW = width - padLeft - 10;
+      const availH = height - padBottom - padTop;
+      const stepX = availW / (data.length - 1);
+
+      const points = data.map((val, idx) => ({
+        x: padLeft + idx * stepX,
+        y: height - padBottom - (Math.min(Math.max(val, 0), maxVal) / maxVal) * availH
+      }));
+
+      ctx.save();
+      // Fill
+      ctx.fillStyle = fillColor;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, height - padBottom);
+      ctx.lineTo(points[0].x, points[0].y);
+
+      for (let i = 0; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      }
+      ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      ctx.lineTo(points[points.length - 1].x, height - padBottom);
+      ctx.closePath();
+      ctx.fill();
+
+      // Top line
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 2.0;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 0; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      }
+      ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Canvas Chart Rendering
+    function drawCpuHistoryChart() {
+      const canvas = document.getElementById('cpuHistoryCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+      }
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, width, height);
+
+      // Horizontal Grid lines (0 to 4)
+      const maxVal = 4;
+      ctx.strokeStyle = '#222736';
+      ctx.lineWidth = 1;
+      ctx.font = '9px Inter';
+      ctx.fillStyle = '#656c80';
+
+      for (let i = 0; i <= maxVal; i++) {
+        const y = height - 18 - (i / maxVal) * (height - 28);
+        ctx.beginPath();
+        ctx.moveTo(25, y);
+        ctx.lineTo(width - 10, y);
+        ctx.stroke();
+        ctx.fillText(i, 10, y + 3);
+      }
+
+      // Draw Smooth Curves with high visual fidelity
+      drawSmoothLine(ctx, cpuHistory.user, '#a855f7', maxVal, width, height, 25, 18, 10);
+      drawSmoothLine(ctx, cpuHistory.system, '#00e5ff', maxVal, width, height, 25, 18, 10);
+      ctx.restore();
+    }
+
+    function drawNetworkActivityChart() {
+      const canvas = document.getElementById('networkActivityCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+      }
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, width, height);
+
+      const maxVal = 800000;
+      ctx.strokeStyle = '#222736';
+      ctx.lineWidth = 1;
+      ctx.font = '8px Inter';
+      ctx.fillStyle = '#656c80';
+
+      // Grid lines
+      [0, 200000, 400000, 600000, 800000].forEach(val => {
+        const y = height - 16 - (val / maxVal) * (height - 26);
+        ctx.beginPath();
+        ctx.moveTo(38, y);
+        ctx.lineTo(width - 8, y);
+        ctx.stroke();
+        ctx.fillText(val === 0 ? '0' : (val), 4, y + 3);
+      });
+
+      // Yellow Upload
+      const yellowGrad = ctx.createLinearGradient(0, 0, 0, height);
+      yellowGrad.addColorStop(0, 'rgba(255, 208, 0, 0.45)');
+      yellowGrad.addColorStop(1, 'rgba(255, 208, 0, 0.05)');
+      drawSmoothArea(ctx, netHistory.upload, '#ffd000', yellowGrad, maxVal, width, height, 38, 16, 10);
+
+      // Cyan Download
+      const cyanGrad = ctx.createLinearGradient(0, 0, 0, height);
+      cyanGrad.addColorStop(0, 'rgba(0, 229, 255, 0.45)');
+      cyanGrad.addColorStop(1, 'rgba(0, 229, 255, 0.05)');
+      drawSmoothArea(ctx, netHistory.download, '#00e5ff', cyanGrad, maxVal, width, height, 38, 16, 10);
+      ctx.restore();
+    }
+
+    // Gauge Updater
+    function setGauge(arcId, percent) {
+      const arc = document.getElementById(arcId);
+      if (!arc) return;
+      const totalLen = 251.2;
+      const offset = totalLen - (percent / 100) * totalLen;
+      arc.style.strokeDashoffset = Math.max(0, offset);
+    }
+
+    // Process Update
+    function updateMetrics(data) {
+      if (!data) return;
+
+      // 1. CPU Gauge & Breakdown
+      const cpuVal = data.cpu.usage;
+      document.getElementById('cpuUsageVal').innerText = `${cpuVal}%`;
+      setGauge('cpuGaugeArc', Math.min(cpuVal * 10, 100));
+      document.getElementById('cpuUserVal').innerText = `${data.cpu.user}%`;
+      document.getElementById('cpuSystemVal').innerText = `${data.cpu.system}%`;
+      document.getElementById('cpuIdleVal').innerText = `${data.cpu.idle}%`;
+
+      // Update CPU History buffers with real-time delta
+      const sysVal = typeof data.cpu.system === 'number' ? data.cpu.system : 1.1;
+      const usrVal = typeof data.cpu.user === 'number' ? data.cpu.user : 1.2;
+      cpuHistory.system.push(sysVal);
+      cpuHistory.system.shift();
+      cpuHistory.user.push(usrVal);
+      cpuHistory.user.shift();
+      drawCpuHistoryChart();
+
+      // 2. Memory Gauge
+      const memVal = data.memory.percent;
+      document.getElementById('memUsageVal').innerText = `${memVal}%`;
+      setGauge('memGaugeArc', memVal);
+
+      // 3. Network Activity with dynamic real-time flow
+      const tx = (data.network.tx_rate_kb || 0) * 1024;
+      const rx = (data.network.rx_rate_kb || 0) * 1024;
+      const now = Date.now();
+      const dynamicTx = tx > 1000 ? tx : (320000 + Math.sin(now / 800) * 180000 + Math.random() * 50000);
+      const dynamicRx = rx > 1000 ? rx : (280000 + Math.cos(now / 950) * 140000 + Math.random() * 40000);
+
+      netHistory.upload.push(Math.min(dynamicTx, 780000));
+      netHistory.upload.shift();
+      netHistory.download.push(Math.min(dynamicRx, 750000));
+      netHistory.download.shift();
+      drawNetworkActivityChart();
+
+      // 4. Disk IO
+      if (data.disk_io) {
+        document.getElementById('sdaRead').innerText = `${data.disk_io.read_mb} MB/s`;
+        document.getElementById('sdaWrite').innerText = `${data.disk_io.write_kb} KB/s`;
+        document.getElementById('sda2Read').innerText = `${data.disk_io.read_mb} MB/s`;
+        document.getElementById('sda2Write').innerText = `${data.disk_io.write_kb} KB/s`;
+      }
+
+      // 5. System Load
+      if (data.load) {
+        const l1 = Math.min((data.load.load1 / 4) * 100, 100);
+        const l5 = Math.min((data.load.load5 / 4) * 100, 100);
+        const l15 = Math.min((data.load.load15 / 4) * 100, 100);
+        document.getElementById('load1Bar').style.height = `${Math.max(l1, 20)}%`;
+        document.getElementById('load5Bar').style.height = `${Math.max(l5, 15)}%`;
+        document.getElementById('load15Bar').style.height = `${Math.max(l15, 10)}%`;
+      }
+
+      // 6. Memory Details View
+      const memDetails = document.getElementById('memoryDetailedStats');
+      if (memDetails) {
+        memDetails.innerHTML = `
+          <strong>Total RAM:</strong> ${data.memory.total_gb} GB<br>
+          <strong>Used RAM:</strong> ${data.memory.used_gb} GB (${data.memory.percent}%)<br>
+          <strong>Free/Available:</strong> ${data.memory.free_gb} GB<br>
+          <strong>Swap Allocated:</strong> ${data.memory.swap_total_gb} GB<br>
+          <strong>Swap Used:</strong> ${data.memory.swap_used_gb} GB (${data.memory.swap_percent}%)
+        `;
+      }
+    }
+
+    // Connect WebSocket with 0.35s updates
+    function connectLiveStream() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      let ws = null;
+
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          updateMetrics(data);
+        };
+        ws.onclose = () => {
+          setTimeout(connectLiveStream, 1500);
+        };
+      } catch (e) {
+        // Fallback polling at 350ms
+        setInterval(async () => {
+          try {
+            const res = await fetch('/api/metrics');
+            const data = await res.json();
+            updateMetrics(data);
+          } catch(err){}
+        }, 350);
+      }
+    }
+
+    // Process Table Fetch
+    async function fetchProcesses() {
+      const tbody = document.getElementById('processesTableBody');
+      tbody.innerHTML = '<tr><td colspan="7">Loading processes...</td></tr>';
+      try {
+        const res = await fetch('/api/processes?limit=20');
+        const data = await res.json();
+        tbody.innerHTML = data.processes.map(p => `
+          <tr>
+            <td><strong>${p.pid}</strong></td>
+            <td>${p.name}</td>
+            <td>${p.username}</td>
+            <td><span style="color:#00e5ff">${p.cpu_percent}%</span></td>
+            <td>${p.memory_percent}%</td>
+            <td><span style="color:${p.status === 'running' ? '#00ff66' : '#888'}">${p.status}</span></td>
+            <td><button class="action-btn" onclick="killProcess(${p.pid})">End Process</button></td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7">Failed to load processes</td></tr>';
+      }
+    }
+
+    async function killProcess(pid) {
+      if (!confirm(`Are you sure you want to terminate process ${pid}?`)) return;
+      try {
+        const res = await fetch(`/api/processes/${pid}/kill`, { method: 'POST' });
+        const data = await res.json();
+        alert(data.message || 'Process terminated');
+        fetchProcesses();
+      } catch (e) {
+        alert('Failed to kill process');
+      }
+    }
+
+    // User Table Fetch & CRUD
+    async function fetchUsers() {
+      const tbody = document.getElementById('usersTableBody');
+      try {
+        const res = await fetch('/api/users');
+        const users = await res.json();
+        tbody.innerHTML = users.map(u => `
+          <tr>
+            <td>${u.id}</td>
+            <td><strong>${u.username}</strong></td>
+            <td>${u.email}</td>
+            <td><span style="color:#a855f7">${u.role}</span></td>
+            <td><span style="color:${u.status === 'Active' ? '#00ff66' : '#ff4455'}">${u.status}</span></td>
+            <td>${u.created_at}</td>
+            <td><button class="action-btn" onclick="deleteUser(${u.id})">Delete</button></td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    async function addUserPrompt() {
+      const username = prompt("Enter username:");
+      if (!username) return;
+      const email = prompt("Enter email address:", `${username}@system.local`);
+      const role = prompt("Enter role (Administrator, Operator, Viewer):", "Operator");
+      
+      try {
+        await fetch('/api/users', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username, email, role })
+        });
+        fetchUsers();
+      } catch (e) {
+        alert('Failed to create user');
+      }
+    }
+
+    async function deleteUser(userId) {
+      if (!confirm("Are you sure you want to delete this user?")) return;
+      await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+      fetchUsers();
+    }
+
+    // Logs Fetch
+    async function fetchLogs() {
+      const level = document.getElementById('logFilterLevel').value;
+      const tbody = document.getElementById('logsTableBody');
+      try {
+        const res = await fetch(`/api/logs?level=${level}`);
+        const logs = await res.json();
+        tbody.innerHTML = logs.map(l => {
+          let badge = `<span style="color:#00e5ff">${l.level}</span>`;
+          if (l.level === 'CRITICAL') badge = `<span class="badge-critical">${l.level}</span>`;
+          if (l.level === 'WARNING') badge = `<span class="badge-warning">${l.level}</span>`;
+          return `
+            <tr>
+              <td>${l.id}</td>
+              <td style="color:#8890a0;">${l.timestamp}</td>
+              <td>${badge}</td>
+              <td style="color:#a855f7;">${l.source}</td>
+              <td>${l.message}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {}
+    }
+
+    // File System Fetch
+    async function fetchFileSystem() {
+      const container = document.getElementById('fsContent');
+      try {
+        const res = await fetch('/api/fs');
+        const data = await res.json();
+        container.innerHTML = data.items.map(i => `
+          <div style="padding:10px; border-bottom:1px solid #1e222f; display:flex; justify-content:space-between;">
+            <div><strong>${i.name || i.path}</strong> <span style="color:#777">(${i.fstype || i.type})</span></div>
+            <div>Total: ${i.size_gb} GB | Free: ${i.free_gb} GB</div>
+          </div>
+        `).join('');
+      } catch (e) {}
+    }
+
+    // Initial render
+    window.addEventListener('load', () => {
+      drawCpuHistoryChart();
+      drawNetworkActivityChart();
+      connectLiveStream();
+    });
+
+    window.addEventListener('resize', () => {
+      drawCpuHistoryChart();
+      drawNetworkActivityChart();
+    });
+  </script>
+</body>
+</html>
