@@ -1030,10 +1030,14 @@
     <section id="view-memory" class="view-section">
       <div class="card">
         <div class="card-header">
-          <div class="card-title-left">Physical RAM & Virtual Swap Configuration</div>
+          <div class="card-title-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+            Physical RAM & Virtual Swap Configuration
+          </div>
+          <button class="primary-btn" onclick="fetchMemory()">Refresh Memory</button>
         </div>
-        <div id="memoryDetailedStats" style="font-size:13px; line-height:2;">
-          Loading memory architecture...
+        <div id="memoryDetailedStats">
+          <div style="color: #8c93a8; padding: 20px; text-align: center;">Loading memory architecture...</div>
         </div>
       </div>
     </section>
@@ -1112,10 +1116,14 @@
     <section id="view-network" class="view-section">
       <div class="card">
         <div class="card-header">
-          <div class="card-title-left">Network Interfaces & Traffic Summary</div>
+          <div class="card-title-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+            Network Interfaces & Traffic Summary
+          </div>
+          <button class="primary-btn" onclick="fetchNetwork()">Refresh Interfaces</button>
         </div>
-        <div id="networkDetailedContent" style="font-size:13px; line-height:2;">
-          Loading network interfaces...
+        <div id="networkDetailedContent">
+          <div style="color: #8c93a8; padding: 20px; text-align: center;">Loading network interfaces...</div>
         </div>
       </div>
     </section>
@@ -1166,6 +1174,8 @@
         if (tab === 'users') fetchUsers();
         if (tab === 'logs') fetchLogs();
         if (tab === 'filesystem') fetchFileSystem();
+        if (tab === 'network') fetchNetwork();
+        if (tab === 'memory') fetchMemory();
       });
     });
 
@@ -1569,6 +1579,153 @@
           </div>
         `).join('');
       } catch (e) {}
+    }
+
+    // Network Details Fetch
+    async function fetchNetwork() {
+      const container = document.getElementById('networkDetailedContent');
+      if (!container) return;
+      try {
+        const res = await fetch('/api/network');
+        const data = await res.json();
+
+        const activeCount = data.interfaces.filter(i => i.status === 'Up').length;
+
+        container.innerHTML = `
+          <!-- Summary Stat Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px;">
+            <div style="background: #161922; border: 1px solid #232734; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 600; color: #8c93a8; margin-bottom: 6px;">TOTAL DOWNLOAD (RX)</div>
+              <div style="font-size: 22px; font-weight: 700; color: #00e5ff;">${data.total.bytes_recv}</div>
+              <div style="font-size: 11px; color: #6a7287; margin-top: 4px;">${data.total.packets_recv.toLocaleString()} packets received</div>
+            </div>
+            <div style="background: #161922; border: 1px solid #232734; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 600; color: #8c93a8; margin-bottom: 6px;">TOTAL UPLOAD (TX)</div>
+              <div style="font-size: 22px; font-weight: 700; color: #ffd000;">${data.total.bytes_sent}</div>
+              <div style="font-size: 11px; color: #6a7287; margin-top: 4px;">${data.total.packets_sent.toLocaleString()} packets sent</div>
+            </div>
+            <div style="background: #161922; border: 1px solid #232734; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 600; color: #8c93a8; margin-bottom: 6px;">ACTIVE INTERFACES</div>
+              <div style="font-size: 22px; font-weight: 700; color: #00ff66;">
+                ${activeCount} <span style="font-size: 13px; color: #8c93a8; font-weight: normal;">/ ${data.interfaces.length} Total</span>
+              </div>
+              <div style="font-size: 11px; color: #6a7287; margin-top: 4px;">Hardware & Virtual Adapters</div>
+            </div>
+          </div>
+
+          <!-- Interfaces Table -->
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Interface Name</th>
+                  <th>Status</th>
+                  <th>IPv4 Address</th>
+                  <th>IPv6 Address</th>
+                  <th>MAC Address</th>
+                  <th>Speed / MTU</th>
+                  <th>Received (RX)</th>
+                  <th>Transmitted (TX)</th>
+                  <th>Errors / Drops</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.interfaces.map(i => `
+                  <tr>
+                    <td>
+                      <strong style="color: #fff; font-size: 13px;">${i.name}</strong>
+                    </td>
+                    <td>
+                      <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: ${i.status === 'Up' ? '#00ff66' : '#ff4455'}">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: ${i.status === 'Up' ? '#00ff66' : '#ff4455'}; box-shadow: 0 0 6px ${i.status === 'Up' ? '#00ff6688' : '#ff445588'}"></span>
+                        ${i.status}
+                      </span>
+                    </td>
+                    <td>
+                      <span style="color: #e2e4ea; font-family: monospace; font-size: 12px;">${i.ipv4}</span>
+                      ${i.netmask !== '-' ? `<div style="font-size: 10px; color: #6a7287;">Mask: ${i.netmask}</div>` : ''}
+                    </td>
+                    <td>
+                      <span style="color: #8c93a8; font-family: monospace; font-size: 11px;">${i.ipv6 !== '-' ? i.ipv6 : '<span style="color:#555">None</span>'}</span>
+                    </td>
+                    <td><span style="color: #a855f7; font-family: monospace; font-size: 12px;">${i.mac}</span></td>
+                    <td>${i.speed_mbps} <span style="color: #6a7287; font-size: 10px;">(MTU: ${i.mtu})</span></td>
+                    <td>
+                      <span style="color: #00e5ff; font-weight: 600;">${i.bytes_recv_formatted}</span>
+                      <div style="font-size: 10px; color: #6a7287;">${i.packets_recv.toLocaleString()} pkts</div>
+                    </td>
+                    <td>
+                      <span style="color: #ffd000; font-weight: 600;">${i.bytes_sent_formatted}</span>
+                      <div style="font-size: 10px; color: #6a7287;">${i.packets_sent.toLocaleString()} pkts</div>
+                    </td>
+                    <td>
+                      <span style="color: ${i.errors === 0 && i.drops === 0 ? '#00ff66' : '#ff4455'}">
+                        ${i.errors} err / ${i.drops} drop
+                      </span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = '<div style="color: #ff4455; padding: 20px;">Failed to load network interfaces. Please ensure backend is running.</div>';
+      }
+    }
+
+    // Memory Details Fetch
+    async function fetchMemory() {
+      const container = document.getElementById('memoryDetailedStats');
+      if (!container) return;
+      try {
+        const res = await fetch('/api/metrics');
+        const data = await res.json();
+        const m = data.memory;
+
+        container.innerHTML = `
+          <!-- Summary Stat Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+            <div style="background: #161922; border: 1px solid #232734; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 600; color: #8c93a8; margin-bottom: 6px;">TOTAL RAM</div>
+              <div style="font-size: 22px; font-weight: 700; color: #fff;">${m.total_gb} GB</div>
+              <div style="font-size: 11px; color: #6a7287; margin-top: 4px;">Physical System Memory</div>
+            </div>
+            <div style="background: #161922; border: 1px solid #232734; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 600; color: #8c93a8; margin-bottom: 6px;">USED RAM</div>
+              <div style="font-size: 22px; font-weight: 700; color: #00ff66;">${m.used_gb} GB</div>
+              <div style="font-size: 11px; color: #00ff66; margin-top: 4px;">${m.percent}% utilized</div>
+            </div>
+            <div style="background: #161922; border: 1px solid #232734; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 600; color: #8c93a8; margin-bottom: 6px;">FREE / AVAILABLE</div>
+              <div style="font-size: 22px; font-weight: 700; color: #00e5ff;">${m.free_gb} GB</div>
+              <div style="font-size: 11px; color: #6a7287; margin-top: 4px;">${(100 - m.percent).toFixed(1)}% remaining</div>
+            </div>
+            <div style="background: #161922; border: 1px solid #232734; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 600; color: #8c93a8; margin-bottom: 6px;">VIRTUAL SWAP</div>
+              <div style="font-size: 22px; font-weight: 700; color: #a855f7;">${m.swap_used_gb} GB</div>
+              <div style="font-size: 11px; color: #6a7287; margin-top: 4px;">${m.swap_total_gb} GB total allocated</div>
+            </div>
+          </div>
+
+          <!-- Memory Progress Bar -->
+          <div style="background: #161922; border: 1px solid #232734; border-radius: 6px; padding: 16px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+              <span><strong>RAM Allocation</strong></span>
+              <span>${m.used_gb} GB Used / ${m.total_gb} GB Total (${m.percent}%)</span>
+            </div>
+            <div style="height: 12px; background: #1f2330; border-radius: 6px; display: flex; overflow: hidden;">
+              <div style="width: ${m.percent}%; background: linear-gradient(90deg, #00ff66, #00e5ff); transition: width 0.4s ease;"></div>
+            </div>
+            <div style="display: flex; gap: 16px; font-size: 11px; color: #8c93a8; margin-top: 8px;">
+              <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #00ff66;"></span> Used: ${m.used_gb} GB</span>
+              <span style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1f2330;"></span> Free: ${m.free_gb} GB</span>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = '<div style="color: #ff4455; padding: 20px;">Failed to load memory details.</div>';
+      }
     }
 
     // Initial render

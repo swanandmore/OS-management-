@@ -436,6 +436,81 @@ def get_filesystem(path: Optional[str] = None):
     items.sort(key=lambda x: (x["type"] != "directory", x["name"].lower()))
     return {"current_path": path, "items": items[:100]}
 
+def format_bytes(b):
+    if b >= 1024**3:
+        return f"{round(b / (1024**3), 2)} GB"
+    elif b >= 1024**2:
+        return f"{round(b / (1024**2), 2)} MB"
+    elif b >= 1024:
+        return f"{round(b / 1024, 2)} KB"
+    return f"{b} Bytes"
+
+@app.get("/api/network")
+def get_network_details():
+    net_ifaces = psutil.net_if_stats()
+    net_addrs = psutil.net_if_addrs()
+    net_io = psutil.net_io_counters(pernic=True)
+
+    interfaces = []
+    for name, stats in net_ifaces.items():
+        addrs = net_addrs.get(name, [])
+        ipv4 = "-"
+        netmask = "-"
+        ipv6 = "-"
+        mac = "-"
+        for a in addrs:
+            if a.family.name == 'AF_INET':
+                ipv4 = a.address
+                netmask = a.netmask or "-"
+            elif a.family.name == 'AF_INET6':
+                if not ipv6 or ipv6 == "-":
+                    ipv6 = a.address
+            elif a.family.name == 'AF_LINK':
+                mac = a.address
+
+        io = net_io.get(name)
+        bytes_sent = io.bytes_sent if io else 0
+        bytes_recv = io.bytes_recv if io else 0
+        packets_sent = io.packets_sent if io else 0
+        packets_recv = io.packets_recv if io else 0
+        errin = io.errin if io else 0
+        errout = io.errout if io else 0
+        dropin = io.dropin if io else 0
+        dropout = io.dropout if io else 0
+
+        interfaces.append({
+            "name": name,
+            "status": "Up" if stats.isup else "Down",
+            "speed_mbps": f"{stats.speed} Mbps" if stats.speed > 0 else "Auto",
+            "mtu": stats.mtu,
+            "ipv4": ipv4,
+            "netmask": netmask,
+            "ipv6": ipv6,
+            "mac": mac,
+            "bytes_sent": bytes_sent,
+            "bytes_recv": bytes_recv,
+            "bytes_sent_formatted": format_bytes(bytes_sent),
+            "bytes_recv_formatted": format_bytes(bytes_recv),
+            "packets_sent": packets_sent,
+            "packets_recv": packets_recv,
+            "errors": errin + errout,
+            "drops": dropin + dropout
+        })
+
+    # Sort with active/Up interfaces first
+    interfaces.sort(key=lambda x: (x["status"] != "Up", x["bytes_recv"] == 0, x["name"].lower()))
+
+    total_io = psutil.net_io_counters()
+    return {
+        "interfaces": interfaces,
+        "total": {
+            "bytes_sent": format_bytes(total_io.bytes_sent),
+            "bytes_recv": format_bytes(total_io.bytes_recv),
+            "packets_sent": total_io.packets_sent,
+            "packets_recv": total_io.packets_recv
+        }
+    }
+
 # ----------------- WebSocket Live Stream -----------------
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
