@@ -556,6 +556,110 @@
       background: #00e5ff44;
       color: #fff;
     }
+
+    /* Terminal Styles */
+    .terminal-container {
+      background: #090b10;
+      border: 1px solid #1e2433;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+      display: flex;
+      flex-direction: column;
+      height: 520px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .terminal-header {
+      background: #12151f;
+      border-bottom: 1px solid #1e2433;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #8c93a8;
+    }
+    .terminal-output {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #d1d5e2;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .terminal-input-row {
+      background: #0c0e15;
+      border-top: 1px solid #1a1e2b;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .terminal-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      flex: 1;
+      caret-color: #00e5ff;
+    }
+    .chip-btn {
+      background: #161924;
+      border: 1px solid #282f42;
+      color: #c2c7d6;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: monospace;
+      transition: all 0.15s ease;
+    }
+    .chip-btn:hover {
+      background: #00e5ff22;
+      border-color: #00e5ff66;
+      color: #00e5ff;
+    }
+
+    /* Anomaly & Historical Styles */
+    .time-pill {
+      background: #161922;
+      border: 1px solid #232734;
+      color: #8c93a8;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .time-pill.active {
+      background: #00e5ff22;
+      border-color: #00e5ff66;
+      color: #00e5ff;
+      font-weight: 600;
+    }
+    .anomaly-card {
+      background: #141722;
+      border: 1px solid #232736;
+      border-radius: 6px;
+      padding: 14px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .anomaly-card.critical {
+      border-left: 4px solid #ff3344;
+    }
+    .anomaly-card.warning {
+      border-left: 4px solid #ffd000;
+    }
+    .anomaly-card.normal {
+      border-left: 4px solid #00ff66;
+    }
   </style>
 </head>
 <body>
@@ -622,6 +726,14 @@
     <button class="nav-btn" data-tab="settings">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       Settings
+    </button>
+    <button class="nav-btn" data-tab="telemetry">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+      Telemetry & AI Anomalies
+    </button>
+    <button class="nav-btn" data-tab="terminal">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+      Web Terminal
     </button>
   </nav>
 
@@ -985,13 +1097,19 @@
               </div>
             </div>
             
-            <div class="alert-row">
-              <span class="alert-name">CPU_IOWAIT - 50.7%</span>
-              <span class="badge-critical">CRITICAL</span>
+            <div id="systemAlertsList">
+              <div class="alert-row">
+                <span class="alert-name">CPU_IOWAIT - 50.7%</span>
+                <span class="badge-critical">CRITICAL</span>
+              </div>
+              <div class="alert-row">
+                <span class="alert-name">MEMORY - 69.2%</span>
+                <span class="badge-warning">WARNING</span>
+              </div>
             </div>
-            <div class="alert-row">
-              <span class="alert-name">MEMORY - 69.2%</span>
-              <span class="badge-warning">WARNING</span>
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #1f2330; display:flex; justify-content:space-between; align-items:center;">
+              <span id="systemHealthBadge" style="font-size:10px; color:#00ff66; font-weight:600;">Health Index: 94%</span>
+              <a href="javascript:void(0)" onclick="switchToTab('telemetry')" style="color: #00e5ff; font-size: 11px; text-decoration: none; font-weight:500;">AI Diagnostics &rarr;</a>
             </div>
           </div>
 
@@ -1153,6 +1271,171 @@
       </div>
     </section>
 
+    <!-- 9. HISTORICAL TELEMETRY & AI ANOMALIES VIEW -->
+    <section id="view-telemetry" class="view-section">
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-header">
+          <div class="card-title-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            Historical Telemetry & AI Anomaly Detection Engine
+          </div>
+          <button class="primary-btn" id="runScanBtn" onclick="runDeepScan()">⚡ Run Deep AI System Scan</button>
+        </div>
+
+        <!-- Health Index Banner & Top KPIs -->
+        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 16px; margin-bottom: 20px;">
+          <!-- Score Circle Box -->
+          <div style="background: #141722; border: 1px solid #232736; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+            <div style="font-size: 11px; font-weight: 600; color: #8c93a8; letter-spacing: 0.5px; margin-bottom: 8px;">OVERALL SYSTEM HEALTH INDEX</div>
+            <div id="aiHealthScore" style="font-size: 42px; font-weight: 800; color: #00ff66; text-shadow: 0 0 20px rgba(0,255,102,0.3);">94%</div>
+            <div id="aiHealthStatus" style="font-size: 12px; font-weight: 700; color: #00ff66; margin-top: 4px; letter-spacing: 1px;">OPTIMAL OPERATION</div>
+            <div style="font-size: 10px; color: #6a7287; margin-top: 8px;">Continuous sliding-window heuristic telemetry</div>
+          </div>
+
+          <!-- 4 Mini KPIs -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+            <div style="background: #141722; border: 1px solid #232736; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 10px; font-weight: 600; color: #8c93a8;">AVG CPU LOAD</div>
+              <div id="histAvgCpu" style="font-size: 20px; font-weight: 700; color: #00e5ff; margin-top: 4px;">--%</div>
+              <div style="font-size: 10px; color: #6a7287; margin-top: 2px;">Over selected timeframe</div>
+            </div>
+            <div style="background: #141722; border: 1px solid #232736; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 10px; font-weight: 600; color: #8c93a8;">PEAK RECORDED CPU</div>
+              <div id="histMaxCpu" style="font-size: 20px; font-weight: 700; color: #ffd000; margin-top: 4px;">--%</div>
+              <div style="font-size: 10px; color: #6a7287; margin-top: 2px;">Spike ceiling</div>
+            </div>
+            <div style="background: #141722; border: 1px solid #232736; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 10px; font-weight: 600; color: #8c93a8;">AVG RAM UTILIZATION</div>
+              <div id="histAvgMem" style="font-size: 20px; font-weight: 700; color: #00ff66; margin-top: 4px;">--%</div>
+              <div style="font-size: 10px; color: #6a7287; margin-top: 2px;">Committed working set</div>
+            </div>
+            <div style="background: #141722; border: 1px solid #232736; border-radius: 6px; padding: 14px;">
+              <div style="font-size: 10px; font-weight: 600; color: #8c93a8;">ACTIVE SUBSYSTEM ANOMALIES</div>
+              <div id="histAnomalyCount" style="font-size: 20px; font-weight: 700; color: #a855f7; margin-top: 4px;">0</div>
+              <div style="font-size: 10px; color: #6a7287; margin-top: 2px;">Active flags requiring review</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Time Horizon Selector -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #1a1e2b;">
+          <div style="font-size: 12px; font-weight: 600; color: #e2e4ea;">Historical Trend Horizon:</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="time-pill" onclick="changeTimeframe(5, this)">5 Mins</button>
+            <button class="time-pill" onclick="changeTimeframe(15, this)">15 Mins</button>
+            <button class="time-pill active" onclick="changeTimeframe(30, this)">30 Mins</button>
+            <button class="time-pill" onclick="changeTimeframe(60, this)">1 Hour</button>
+            <button class="time-pill" onclick="changeTimeframe(1440, this)">24 Hours</button>
+          </div>
+        </div>
+
+        <!-- Historical Canvas Charts Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+          <div style="background: #141722; border: 1px solid #232736; border-radius: 6px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 600; color: #e2e4ea; margin-bottom: 4px;">CPU & Memory Time-Series Trend</div>
+            <div style="font-size: 10px; color: #6a7287; margin-bottom: 8px;">Persistent historical records from SQLite</div>
+            <div class="canvas-container" style="height: 160px;">
+              <canvas id="histCpuMemCanvas"></canvas>
+            </div>
+            <div class="chart-legend" style="margin-top: 8px;">
+              <div class="chart-legend-item"><div class="legend-line" style="background:#00e5ff"></div> CPU Load %</div>
+              <div class="chart-legend-item"><div class="legend-line" style="background:#00ff66"></div> Memory %</div>
+            </div>
+          </div>
+
+          <div style="background: #141722; border: 1px solid #232736; border-radius: 6px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 600; color: #e2e4ea; margin-bottom: 4px;">Network RX Rate & Disk Read Throughput</div>
+            <div style="font-size: 10px; color: #6a7287; margin-bottom: 8px;">Data transfer bandwidth over time</div>
+            <div class="canvas-container" style="height: 160px;">
+              <canvas id="histNetDiskCanvas"></canvas>
+            </div>
+            <div class="chart-legend" style="margin-top: 8px;">
+              <div class="chart-legend-item"><div class="legend-line" style="background:#ffd000"></div> Network RX (KB/s)</div>
+              <div class="chart-legend-item"><div class="legend-line" style="background:#a855f7"></div> Disk Read (MB/s)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Anomalies Feed -->
+        <div style="margin-bottom: 20px;">
+          <div style="font-size: 12px; font-weight: 600; color: #e2e4ea; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            <span>Real-Time AI Anomaly & Root Cause Feed</span>
+          </div>
+          <div id="aiAnomaliesFeed">
+            <div style="color: #8c93a8; padding: 16px; text-align: center;">Evaluating system telemetry...</div>
+          </div>
+        </div>
+
+        <!-- Historical Anomaly Event Log -->
+        <div>
+          <div style="font-size: 12px; font-weight: 600; color: #e2e4ea; margin-bottom: 8px;">Persistent Anomaly Audit Records (Database)</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Score</th>
+                <th>Root Cause Analysis</th>
+                <th>Recommended Action</th>
+              </tr>
+            </thead>
+            <tbody id="histAnomaliesTbody">
+              <tr><td colspan="6">Loading audit records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. EMBEDDED WEB TERMINAL VIEW -->
+    <section id="view-terminal" class="view-section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            Interactive Operating System Web Shell
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="display: flex; align-items: center; gap: 5px; font-size: 11px; color: #00ff66;">
+              <span style="width: 7px; height: 7px; border-radius: 50%; background: #00ff66; box-shadow: 0 0 6px #00ff66;"></span>
+              PowerShell Session Ready
+            </span>
+            <button class="primary-btn" onclick="clearTerminalOutput()">Clear Console</button>
+          </div>
+        </div>
+
+        <!-- Quick Command Chips -->
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; padding: 10px; background: #141722; border: 1px solid #232736; border-radius: 6px;">
+          <span style="font-size: 11px; color: #8c93a8; align-self: center; margin-right: 4px;">Quick Actions:</span>
+          <button class="chip-btn" onclick="runQuickCommand('systeminfo')">systeminfo</button>
+          <button class="chip-btn" onclick="runQuickCommand('ipconfig /all')">ipconfig /all</button>
+          <button class="chip-btn" onclick="runQuickCommand('Get-Process | Sort-Object CPU -Descending | Select-Object -First 8 Name, Id, CPU, WS')">top processes</button>
+          <button class="chip-btn" onclick="runQuickCommand('Get-Service | Where-Object Status -eq \'Running\' | Select-Object -First 8 Name, DisplayName')">active services</button>
+          <button class="chip-btn" onclick="runQuickCommand('netstat -ano | Select-Object -First 8')">netstat</button>
+          <button class="chip-btn" onclick="runQuickCommand('ping -n 3 8.8.8.8')">ping test</button>
+          <button class="chip-btn" onclick="runQuickCommand('whoami')">whoami</button>
+          <button class="chip-btn" onclick="runQuickCommand('dir')">dir</button>
+          <button class="chip-btn" onclick="runQuickCommand('help')">help</button>
+        </div>
+
+        <!-- Terminal Output & Input Window -->
+        <div class="terminal-container">
+          <div class="terminal-header">
+            <span>Terminal Shell: powershell.exe</span>
+            <span id="termSessionCwd" style="font-family: monospace; color: #00e5ff;">C:\...</span>
+          </div>
+          <div id="terminalOutputArea" class="terminal-output">Welcome to Monitor Board Web Shell [PowerShell Engine]
+Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
+</div>
+          <div class="terminal-input-row">
+            <span id="terminalPromptPrefix" style="color: #00ff66; font-weight: 600;">admin@os-dashboard</span>:<span id="terminalPromptCwd" style="color: #00e5ff;">~</span>$&nbsp;
+            <input type="text" id="terminalInputBox" class="terminal-input" placeholder="Type shell command..." autocomplete="off" spellcheck="false" />
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <script>
@@ -1176,8 +1459,15 @@
         if (tab === 'filesystem') fetchFileSystem();
         if (tab === 'network') fetchNetwork();
         if (tab === 'memory') fetchMemory();
+        if (tab === 'telemetry') fetchTelemetryAndAnomalies();
+        if (tab === 'terminal') initWebTerminal();
       });
     });
+
+    function switchToTab(tabName) {
+      const btn = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+      if (btn) btn.click();
+    }
 
     // History data buffers for Canvas Charts (45 points for continuous smooth flow)
     const MAX_POINTS = 45;
@@ -1433,6 +1723,27 @@
           <strong>Swap Allocated:</strong> ${data.memory.swap_total_gb} GB<br>
           <strong>Swap Used:</strong> ${data.memory.swap_used_gb} GB (${data.memory.swap_percent}%)
         `;
+      }
+
+      // 7. System Health Badge & Alerts on Main Dashboard
+      if (data.health_score !== undefined) {
+        const hBadge = document.getElementById('systemHealthBadge');
+        if (hBadge) {
+          const col = data.health_score >= 85 ? '#00ff66' : (data.health_score >= 70 ? '#ffd000' : '#ff3344');
+          hBadge.innerText = `Health Index: ${data.health_score}%`;
+          hBadge.style.color = col;
+        }
+      }
+      if (data.alerts && data.alerts.length > 0) {
+        const alertsList = document.getElementById('systemAlertsList');
+        if (alertsList) {
+          alertsList.innerHTML = data.alerts.slice(0, 3).map(a => `
+            <div class="alert-row">
+              <span class="alert-name">${a.name} - ${a.value}</span>
+              <span class="${a.level === 'CRITICAL' ? 'badge-critical' : (a.level === 'WARNING' ? 'badge-warning' : 'badge-up')}">${a.level}</span>
+            </div>
+          `).join('');
+        }
       }
     }
 
@@ -1726,6 +2037,379 @@
       } catch (err) {
         container.innerHTML = '<div style="color: #ff4455; padding: 20px;">Failed to load memory details.</div>';
       }
+    }
+
+    // ==========================================
+    // Telemetry & Anomaly Detection Logic
+    // ==========================================
+    let currentHistoryMinutes = 30;
+
+    async function changeTimeframe(mins, btn) {
+      currentHistoryMinutes = mins;
+      document.querySelectorAll('#view-telemetry .time-pill').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      await fetchTelemetryAndAnomalies(mins);
+    }
+
+    async function fetchTelemetryAndAnomalies(minutes = currentHistoryMinutes) {
+      try {
+        const [histRes, anomalyRes] = await Promise.all([
+          fetch(`/api/history?minutes=${minutes}`).then(r => r.json()),
+          fetch('/api/anomalies').then(r => r.json())
+        ]);
+
+        // Health Score & Status
+        const health = anomalyRes.system_health_score ?? 100;
+        const scoreEl = document.getElementById('aiHealthScore');
+        const statusEl = document.getElementById('aiHealthStatus');
+        if (scoreEl) {
+          scoreEl.textContent = `${health}%`;
+          scoreEl.style.color = health > 85 ? '#00ff66' : health > 60 ? '#ffb300' : '#ff3366';
+        }
+        if (statusEl) {
+          statusEl.textContent = health > 85 ? 'SYSTEM NOMINAL' : health > 60 ? 'DEGRADED PERFORMANCE' : 'CRITICAL ATTENTION REQUIRED';
+          statusEl.style.color = health > 85 ? '#00ff66' : health > 60 ? '#ffb300' : '#ff3366';
+        }
+
+        // Summary Cards
+        if (histRes.summary) {
+          const s = histRes.summary;
+          const avgCpuEl = document.getElementById('histAvgCpu');
+          const maxCpuEl = document.getElementById('histMaxCpu');
+          const avgMemEl = document.getElementById('histAvgMem');
+          const anomCountEl = document.getElementById('histAnomalyCount');
+          if (avgCpuEl) avgCpuEl.textContent = `${s.avg_cpu}%`;
+          if (maxCpuEl) maxCpuEl.textContent = `${s.max_cpu}%`;
+          if (avgMemEl) avgMemEl.textContent = `${s.avg_memory}%`;
+          if (anomCountEl) anomCountEl.textContent = anomalyRes.active_anomalies ? anomalyRes.active_anomalies.length : 0;
+        }
+
+        // Render Active Anomalies Feed
+        const feed = document.getElementById('aiAnomaliesFeed');
+        if (feed) {
+          const actives = anomalyRes.active_anomalies || [];
+          if (actives.length === 0) {
+            feed.innerHTML = `
+              <div style="background: rgba(0, 255, 102, 0.05); border: 1px dashed rgba(0, 255, 102, 0.3); border-radius: 6px; padding: 18px; text-align: center; color: #a1b0cb; font-size: 13px;">
+                <div style="color: #00ff66; font-weight: 700; margin-bottom: 4px;">✓ Zero Active Anomalies Detected</div>
+                Heuristic engine reports balanced multi-core utilization, nominal heap footprint, and low disk queue saturation.
+              </div>
+            `;
+          } else {
+            feed.innerHTML = actives.map(a => `
+              <div class="anomaly-card ${a.severity}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="color: ${a.severity === 'critical' ? '#ff3366' : '#ffb300'}; font-size: 13px;">${a.title}</strong>
+                  <span class="badge ${a.severity === 'critical' ? 'badge-danger' : 'badge-warning'}">${a.severity.toUpperCase()}</span>
+                </div>
+                <div style="font-size: 12px; color: #cfd6e6; margin-bottom: 6px;">${a.description}</div>
+                <div style="font-size: 11px; color: #00e5ff; font-family: monospace;">Recommendation: ${a.recommendation}</div>
+              </div>
+            `).join('');
+          }
+        }
+
+        // Render Anomaly Log Table
+        const tbody = document.getElementById('histAnomaliesTbody');
+        if (tbody) {
+          const log = anomalyRes.historical_log || [];
+          if (log.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #8c93a8; padding: 18px;">No anomaly events recorded in this window.</td></tr>`;
+          } else {
+            tbody.innerHTML = log.map(item => `
+              <tr>
+                <td style="font-family: monospace; color: #8c93a8;">${item.timestamp ? item.timestamp.split('T')[1]?.slice(0, 8) || item.timestamp : '-'}</td>
+                <td><span class="badge ${item.severity === 'critical' ? 'badge-danger' : 'badge-warning'}">${item.severity.toUpperCase()}</span></td>
+                <td style="font-weight: 600;">${item.title}</td>
+                <td style="color: #a1b0cb; font-size: 12px;">${item.description}</td>
+              </tr>
+            `).join('');
+          }
+        }
+
+        // Draw Historical Trend Charts
+        drawHistoricalCharts(histRes.history || []);
+
+      } catch (err) {
+        console.error('Failed to load telemetry & anomalies:', err);
+      }
+    }
+
+    async function runDeepScan() {
+      const btn = document.getElementById('runScanBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = 'Scanning System...';
+      }
+      try {
+        const res = await fetch('/api/anomalies/scan', { method: 'POST' }).then(r => r.json());
+        await fetchTelemetryAndAnomalies(currentHistoryMinutes);
+        alert(`Deep Diagnostic Complete: Health Score is ${res.system_health_score}%. ${res.active_anomalies.length} active issue(s) flagged.`);
+      } catch (err) {
+        alert('Deep diagnostic scan failed: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '⚡ Run Deep Scan Now';
+        }
+      }
+    }
+
+    function drawHistoricalCharts(points) {
+      // 1. CPU & Memory Trend Canvas
+      const cpuCanvas = document.getElementById('histCpuMemCanvas');
+      if (cpuCanvas) {
+        const rect = cpuCanvas.getBoundingClientRect();
+        cpuCanvas.width = rect.width * (window.devicePixelRatio || 1);
+        cpuCanvas.height = 180 * (window.devicePixelRatio || 1);
+        const ctx = cpuCanvas.getContext('2d');
+        ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+        const w = rect.width;
+        const h = 180;
+
+        ctx.clearRect(0, 0, w, h);
+
+        if (points.length < 2) {
+          ctx.fillStyle = '#8c93a8';
+          ctx.font = '12px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Collecting time-series data points... (auto-refreshes every 5s)', w / 2, h / 2);
+          return;
+        }
+
+        // Draw Grid lines
+        ctx.strokeStyle = '#1e2433';
+        ctx.lineWidth = 1;
+        for (let y = 30; y < h - 20; y += 40) {
+          ctx.beginPath();
+          ctx.moveTo(40, y);
+          ctx.lineTo(w - 10, y);
+          ctx.stroke();
+        }
+
+        // Helper to plot a series
+        function plotLine(key, strokeColor, fillColor) {
+          ctx.beginPath();
+          points.forEach((pt, idx) => {
+            const x = 40 + (idx / (points.length - 1)) * (w - 50);
+            const val = Math.min(100, Math.max(0, pt[key] || 0));
+            const y = (h - 30) - (val / 100) * (h - 50);
+            if (idx === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Gradient fill
+          ctx.lineTo(40 + (w - 50), h - 30);
+          ctx.lineTo(40, h - 30);
+          ctx.closePath();
+          ctx.fillStyle = fillColor;
+          ctx.fill();
+        }
+
+        // Plot Memory (Cyan)
+        plotLine('mem_percent', '#00e5ff', 'rgba(0, 229, 255, 0.08)');
+        // Plot CPU (Green)
+        plotLine('cpu_percent', '#00ff66', 'rgba(0, 255, 102, 0.12)');
+
+        // Legend
+        ctx.font = '11px monospace';
+        ctx.fillStyle = '#00ff66';
+        ctx.fillText('● CPU %', 45, 18);
+        ctx.fillStyle = '#00e5ff';
+        ctx.fillText('● MEMORY %', 120, 18);
+      }
+
+      // 2. Net & Disk Activity Canvas
+      const netCanvas = document.getElementById('histNetDiskCanvas');
+      if (netCanvas) {
+        const rect = netCanvas.getBoundingClientRect();
+        netCanvas.width = rect.width * (window.devicePixelRatio || 1);
+        netCanvas.height = 180 * (window.devicePixelRatio || 1);
+        const ctx = netCanvas.getContext('2d');
+        ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+        const w = rect.width;
+        const h = 180;
+
+        ctx.clearRect(0, 0, w, h);
+
+        if (points.length < 2) {
+          ctx.fillStyle = '#8c93a8';
+          ctx.font = '12px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Awaiting disk and network telemetry samples...', w / 2, h / 2);
+          return;
+        }
+
+        const maxNet = Math.max(...points.map(p => (p.net_recv_kbps || 0) + (p.net_sent_kbps || 0)), 100);
+
+        ctx.strokeStyle = '#1e2433';
+        ctx.lineWidth = 1;
+        for (let y = 30; y < h - 20; y += 40) {
+          ctx.beginPath();
+          ctx.moveTo(40, y);
+          ctx.lineTo(w - 10, y);
+          ctx.stroke();
+        }
+
+        // Network throughput line
+        ctx.beginPath();
+        points.forEach((pt, idx) => {
+          const totalNet = (pt.net_recv_kbps || 0) + (pt.net_sent_kbps || 0);
+          const x = 40 + (idx / (points.length - 1)) * (w - 50);
+          const y = (h - 30) - (totalNet / maxNet) * (h - 50);
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#a855f7';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = '11px monospace';
+        ctx.fillStyle = '#a855f7';
+        ctx.fillText(`● TOTAL NET THROUGHPUT (Peak: ${Math.round(maxNet)} KB/s)`, 45, 18);
+      }
+    }
+
+    // ==========================================
+    // Embedded Web Terminal Logic
+    // ==========================================
+    let commandHistory = [];
+    let historyIndex = -1;
+    let terminalCwd = '';
+
+    function initWebTerminal() {
+      const input = document.getElementById('terminalInputBox');
+      if (!input || input.dataset.bound) return;
+      input.dataset.bound = 'true';
+
+      // Load initial cwd
+      fetch('/api/terminal/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: 'echo "Terminal Initialized"' })
+      }).then(r => r.json()).then(data => {
+        if (data.cwd) {
+          terminalCwd = data.cwd;
+          updateTerminalPrompt();
+        }
+      }).catch(() => {});
+
+      input.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+          const cmd = input.value.trim();
+          if (!cmd) return;
+          commandHistory.push(cmd);
+          historyIndex = commandHistory.length;
+          input.value = '';
+          await executeTerminalCommand(cmd);
+        } else if (e.key === 'ArrowUp') {
+          if (historyIndex > 0) {
+            historyIndex--;
+            input.value = commandHistory[historyIndex] || '';
+          }
+          e.preventDefault();
+        } else if (e.key === 'ArrowDown') {
+          if (historyIndex < commandHistory.length - 1) {
+            historyIndex++;
+            input.value = commandHistory[historyIndex] || '';
+          } else {
+            historyIndex = commandHistory.length;
+            input.value = '';
+          }
+          e.preventDefault();
+        }
+      });
+    }
+
+    function updateTerminalPrompt() {
+      const promptEl = document.getElementById('terminalCurrentCwd');
+      if (promptEl) {
+        // Shorten long paths for display
+        const displayPath = terminalCwd.length > 40 ? '...' + terminalCwd.slice(-37) : terminalCwd;
+        promptEl.textContent = displayPath ? `${displayPath}>` : 'PS>';
+      }
+    }
+
+    function clearTerminalOutput() {
+      const out = document.getElementById('terminalOutputArea');
+      if (out) {
+        out.innerHTML = `
+          <div style="color: #6c7693; margin-bottom: 12px;">Terminal cleared. Ready for commands.</div>
+        `;
+      }
+    }
+
+    function runQuickCommand(cmd) {
+      const input = document.getElementById('terminalInputBox');
+      if (input) input.value = cmd;
+      executeTerminalCommand(cmd);
+    }
+
+    async function executeTerminalCommand(cmd) {
+      const out = document.getElementById('terminalOutputArea');
+      if (!out) return;
+
+      if (cmd.toLowerCase() === 'cls' || cmd.toLowerCase() === 'clear') {
+        clearTerminalOutput();
+        return;
+      }
+
+      // Append prompt and command line
+      const cmdRow = document.createElement('div');
+      cmdRow.style.margin = '8px 0 4px 0';
+      cmdRow.innerHTML = `<span style="color: #00ff66; font-weight: 600;">${terminalCwd || 'PS'}></span> <span style="color: #ffffff; font-weight: 600;">${escapeHtml(cmd)}</span>`;
+      out.appendChild(cmdRow);
+
+      const loadingRow = document.createElement('div');
+      loadingRow.style.color = '#8c93a8';
+      loadingRow.style.fontStyle = 'italic';
+      loadingRow.textContent = 'Executing...';
+      out.appendChild(loadingRow);
+      out.scrollTop = out.scrollHeight;
+
+      try {
+        const res = await fetch('/api/terminal/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: cmd, cwd: terminalCwd })
+        });
+        const data = await res.json();
+        loadingRow.remove();
+
+        if (data.cwd) {
+          terminalCwd = data.cwd;
+          updateTerminalPrompt();
+        }
+
+        const resRow = document.createElement('div');
+        resRow.style.whiteSpace = 'pre-wrap';
+        resRow.style.wordBreak = 'break-all';
+        resRow.style.marginBottom = '12px';
+
+        if (data.output) {
+          resRow.style.color = data.returncode === 0 ? '#cfd6e6' : '#ffb300';
+          resRow.textContent = data.output;
+        } else if (data.returncode === 0) {
+          resRow.style.color = '#8c93a8';
+          resRow.textContent = '[Command completed successfully with 0 output]';
+        } else {
+          resRow.style.color = '#ff4455';
+          resRow.textContent = `[Process exited with return code ${data.returncode}]`;
+        }
+        out.appendChild(resRow);
+      } catch (err) {
+        loadingRow.remove();
+        const errRow = document.createElement('div');
+        errRow.style.color = '#ff4455';
+        errRow.style.marginBottom = '12px';
+        errRow.textContent = `Execution error: ${err.message}`;
+        out.appendChild(errRow);
+      }
+
+      out.scrollTop = out.scrollHeight;
     }
 
     // Initial render
