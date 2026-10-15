@@ -2059,7 +2059,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         ]);
 
         // Health Score & Status
-        const health = anomalyRes.system_health_score ?? 100;
+        const health = anomalyRes.health_score ?? anomalyRes.system_health_score ?? 100;
         const scoreEl = document.getElementById('aiHealthScore');
         const statusEl = document.getElementById('aiHealthStatus');
         if (scoreEl) {
@@ -2072,23 +2072,23 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         }
 
         // Summary Cards
-        if (histRes.summary) {
+        const activeList = anomalyRes.active_anomalies || [];
+        if (histRes && histRes.summary) {
           const s = histRes.summary;
           const avgCpuEl = document.getElementById('histAvgCpu');
           const maxCpuEl = document.getElementById('histMaxCpu');
           const avgMemEl = document.getElementById('histAvgMem');
           const anomCountEl = document.getElementById('histAnomalyCount');
-          if (avgCpuEl) avgCpuEl.textContent = `${s.avg_cpu}%`;
-          if (maxCpuEl) maxCpuEl.textContent = `${s.max_cpu}%`;
-          if (avgMemEl) avgMemEl.textContent = `${s.avg_memory}%`;
-          if (anomCountEl) anomCountEl.textContent = anomalyRes.active_anomalies ? anomalyRes.active_anomalies.length : 0;
+          if (avgCpuEl) avgCpuEl.textContent = `${s.avg_cpu ?? 0}%`;
+          if (maxCpuEl) maxCpuEl.textContent = `${s.max_cpu ?? 0}%`;
+          if (avgMemEl) avgMemEl.textContent = `${s.avg_mem ?? s.avg_memory ?? 0}%`;
+          if (anomCountEl) anomCountEl.textContent = activeList.filter(a => a.severity !== 'NORMAL').length;
         }
 
         // Render Active Anomalies Feed
         const feed = document.getElementById('aiAnomaliesFeed');
         if (feed) {
-          const actives = anomalyRes.active_anomalies || [];
-          if (actives.length === 0) {
+          if (activeList.length === 0) {
             feed.innerHTML = `
               <div style="background: rgba(0, 255, 102, 0.05); border: 1px dashed rgba(0, 255, 102, 0.3); border-radius: 6px; padding: 18px; text-align: center; color: #a1b0cb; font-size: 13px;">
                 <div style="color: #00ff66; font-weight: 700; margin-bottom: 4px;">✓ Zero Active Anomalies Detected</div>
@@ -2096,34 +2096,44 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
               </div>
             `;
           } else {
-            feed.innerHTML = actives.map(a => `
-              <div class="anomaly-card ${a.severity}">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="color: ${a.severity === 'critical' ? '#ff3366' : '#ffb300'}; font-size: 13px;">${a.title}</strong>
-                  <span class="badge ${a.severity === 'critical' ? 'badge-danger' : 'badge-warning'}">${a.severity.toUpperCase()}</span>
+            feed.innerHTML = activeList.map(a => {
+              const sev = (a.severity || 'normal').toLowerCase();
+              const badgeClass = sev === 'critical' ? 'badge-danger' : sev === 'warning' ? 'badge-warning' : 'badge-primary';
+              const title = a.title || a.type?.replace(/_/g, ' ') || 'SYSTEM NOTIFICATION';
+              return `
+                <div class="anomaly-card ${sev}">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="color: ${sev === 'critical' ? '#ff3366' : sev === 'warning' ? '#ffb300' : '#00e5ff'}; font-size: 13px;">${escapeHtml(title)}</strong>
+                    <span class="badge ${badgeClass}">${sev.toUpperCase()}</span>
+                  </div>
+                  <div style="font-size: 12px; color: #cfd6e6; margin-bottom: 6px;">${escapeHtml(a.description || '')}</div>
+                  <div style="font-size: 11px; color: #00e5ff; font-family: monospace;">Recommendation: ${escapeHtml(a.recommendation || 'Continuous monitoring active.')}</div>
                 </div>
-                <div style="font-size: 12px; color: #cfd6e6; margin-bottom: 6px;">${a.description}</div>
-                <div style="font-size: 11px; color: #00e5ff; font-family: monospace;">Recommendation: ${a.recommendation}</div>
-              </div>
-            `).join('');
+              `;
+            }).join('');
           }
         }
 
         // Render Anomaly Log Table
         const tbody = document.getElementById('histAnomaliesTbody');
         if (tbody) {
-          const log = anomalyRes.historical_log || [];
+          const log = anomalyRes.historical_anomalies || anomalyRes.historical_log || [];
           if (log.length === 0) {
             tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #8c93a8; padding: 18px;">No anomaly events recorded in this window.</td></tr>`;
           } else {
-            tbody.innerHTML = log.map(item => `
-              <tr>
-                <td style="font-family: monospace; color: #8c93a8;">${item.timestamp ? item.timestamp.split('T')[1]?.slice(0, 8) || item.timestamp : '-'}</td>
-                <td><span class="badge ${item.severity === 'critical' ? 'badge-danger' : 'badge-warning'}">${item.severity.toUpperCase()}</span></td>
-                <td style="font-weight: 600;">${item.title}</td>
-                <td style="color: #a1b0cb; font-size: 12px;">${item.description}</td>
-              </tr>
-            `).join('');
+            tbody.innerHTML = log.map(item => {
+              const sev = (item.severity || 'normal').toLowerCase();
+              const badgeClass = sev === 'critical' ? 'badge-danger' : sev === 'warning' ? 'badge-warning' : 'badge-primary';
+              const title = item.title || item.type?.replace(/_/g, ' ') || 'SYSTEM NOTIFICATION';
+              return `
+                <tr>
+                  <td style="font-family: monospace; color: #8c93a8;">${item.timestamp ? item.timestamp.split('T')[1]?.slice(0, 8) || item.timestamp : '-'}</td>
+                  <td><span class="badge ${badgeClass}">${sev.toUpperCase()}</span></td>
+                  <td style="font-weight: 600;">${escapeHtml(title)}</td>
+                  <td style="color: #a1b0cb; font-size: 12px;">${escapeHtml(item.description || '')}</td>
+                </tr>
+              `;
+            }).join('');
           }
         }
 
@@ -2144,7 +2154,9 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
       try {
         const res = await fetch('/api/anomalies/scan', { method: 'POST' }).then(r => r.json());
         await fetchTelemetryAndAnomalies(currentHistoryMinutes);
-        alert(`Deep Diagnostic Complete: Health Score is ${res.system_health_score}%. ${res.active_anomalies.length} active issue(s) flagged.`);
+        const count = res.anomalies_detected ?? (res.active_anomalies ? res.active_anomalies.length : (res.anomalies ? res.anomalies.length : 0));
+        const health = res.health_score ?? res.system_health_score ?? 100;
+        alert(`Deep Diagnostic Complete: Health Score is ${health}%. ${count} active issue(s) flagged.`);
       } catch (err) {
         alert('Deep diagnostic scan failed: ' + err.message);
       } finally {
@@ -2210,7 +2222,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         }
 
         // Plot Memory (Cyan)
-        plotLine('mem_percent', '#00e5ff', 'rgba(0, 229, 255, 0.08)');
+        plotLine('memory_percent', '#00e5ff', 'rgba(0, 229, 255, 0.08)');
         // Plot CPU (Green)
         plotLine('cpu_percent', '#00ff66', 'rgba(0, 255, 102, 0.12)');
 
@@ -2243,7 +2255,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
           return;
         }
 
-        const maxNet = Math.max(...points.map(p => (p.net_recv_kbps || 0) + (p.net_sent_kbps || 0)), 100);
+        const maxNet = Math.max(...points.map(p => (p.net_rx_kb || 0) + (p.net_tx_kb || 0)), 100);
 
         ctx.strokeStyle = '#1e2433';
         ctx.lineWidth = 1;
@@ -2257,7 +2269,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         // Network throughput line
         ctx.beginPath();
         points.forEach((pt, idx) => {
-          const totalNet = (pt.net_recv_kbps || 0) + (pt.net_sent_kbps || 0);
+          const totalNet = (pt.net_rx_kb || 0) + (pt.net_tx_kb || 0);
           const x = 40 + (idx / (points.length - 1)) * (w - 50);
           const y = (h - 30) - (totalNet / maxNet) * (h - 50);
           if (idx === 0) ctx.moveTo(x, y);
