@@ -636,6 +636,16 @@ def get_logs(level: Optional[str] = "", search: Optional[str] = "", limit: int =
         for r in rows
     ]
 
+class FsMkdirRequest(BaseModel):
+    path: str
+
+class FsDeleteRequest(BaseModel):
+    path: str
+
+class FsWriteRequest(BaseModel):
+    path: str
+    content: str
+
 @app.get("/api/fs")
 def get_filesystem(path: Optional[str] = None):
     if not path or path == "/":
@@ -649,12 +659,17 @@ def get_filesystem(path: Optional[str] = None):
                     "type": "drive",
                     "fstype": p.fstype,
                     "size_gb": round(usage.total / (1024**3), 1),
-                    "free_gb": round(usage.free / (1024**3), 1)
+                    "free_gb": round(usage.free / (1024**3), 1),
+                    "used_gb": round(usage.used / (1024**3), 1),
+                    "percent": usage.percent
                 })
             except Exception:
                 continue
         return {"current_path": "/", "items": drives}
     
+    if len(path) == 2 and path[1] == ':':
+        path += '\\'
+
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="Directory path not found")
 
@@ -677,7 +692,60 @@ def get_filesystem(path: Optional[str] = None):
         raise HTTPException(status_code=403, detail="Permission denied")
 
     items.sort(key=lambda x: (x["type"] != "directory", x["name"].lower()))
-    return {"current_path": path, "items": items[:100]}
+    return {"current_path": path, "items": items[:500]}
+
+@app.get("/api/fs/read")
+def read_file_content(path: str):
+    if not os.path.exists(path) or not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="File not found")
+    try:
+        size = os.path.getsize(path)
+        is_large = size > 256 * 1024
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read(256 * 1024)
+        return {
+            "name": os.path.basename(path),
+            "path": path,
+            "size": size,
+            "is_truncated": is_large,
+            "content": content
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/fs/mkdir")
+def make_directory(req: FsMkdirRequest):
+    try:
+        os.makedirs(req.path, exist_ok=True)
+        return {"status": "ok", "path": req.path}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/fs/delete")
+def delete_path(req: FsDeleteRequest):
+    try:
+        if not os.path.exists(req.path):
+            raise HTTPException(status_code=404, detail="Path not found")
+        if os.path.isdir(req.path):
+            import shutil
+            shutil.rmtree(req.path)
+        else:
+            os.remove(req.path)
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/fs/write")
+def write_file_content(req: FsWriteRequest):
+    try:
+        parent = os.path.dirname(req.path)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
+        with open(req.path, "w", encoding="utf-8") as f:
+            f.write(req.content)
+        return {"status": "ok", "path": req.path}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/network")
 def get_network_details():

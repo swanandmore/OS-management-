@@ -1062,7 +1062,36 @@ tr:hover { background: rgba(56, 189, 248, 0.03); }
 .bar-meta { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #cbd5e1; }
 .bar-track { height: 16px; background: #0f172a; border-radius: 4px; overflow: hidden; display: flex; }
 .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 10px; font-weight: bold; color: white; }
-</style>
+
+    /* Interactive Simulator & File Explorer Enhancements */
+    .crumb { cursor: pointer; color: #94a3b8; transition: color 0.15s; }
+    .crumb:hover { color: #38bdf8; text-decoration: underline; }
+    .crumb.active { color: #38bdf8; font-weight: 700; cursor: default; text-decoration: none; }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-dialog {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 900px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+    .playback-btn:hover { background: #334155; color: #38bdf8; }
+    .tab-pill { cursor: pointer; user-select: none; }
+
+  </style>
 </head>
 <body>
 
@@ -1591,63 +1620,64 @@ tr:hover { background: rgba(56, 189, 248, 0.03); }
 
       <!-- Tab 1: Section 6.5 Contiguous Memory Simulator (Default: Matches Report Fig 6.2) -->
       <div id="memSubViewSim" style="display: block;">
-        <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-          
-          <!-- Module Header Banner -->
-          <div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px 20px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #38bdf8); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: white;">MEM</div>
-              <div>
-                <div style="font-size: 16px; font-weight: 700; color: #ffffff;">Contiguous Memory Management & Dynamic Partitioning</div>
-                <div style="font-size: 11px; color: #94a3b8;">Section 6.5 Simulation Walkthrough Module | OSDS Course Project (VIT Pune)</div>
-              </div>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: First Fit Active</span>
-              <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.2 (Page 19)</span>
+<div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        
+        <!-- Module Header Banner -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px 20px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: white;">OS</div>
+            <div>
+              <div style="font-size: 16px; font-weight: 700; color: #ffffff;">Contiguous Memory Management & Dynamic Partitioning</div>
+              <div style="font-size: 11px; color: #94a3b8;">Section 6.5 Simulation Walkthrough Module | OSDS Course Project (VIT Pune)</div>
             </div>
           </div>
+          <div style="display: flex; gap: 8px;">
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Real-Time Interactive</span>
+            <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.2</span>
+          </div>
+        </div>
 
 <div class="control-ribbon">
     <div class="control-group">
         <span class="control-label">Allocation Strategy:</span>
         <div style="display: flex; gap: 6px;">
-            <div class="tab-pill active">First Fit (Active)</div>
-            <div class="tab-pill">Best Fit</div>
-            <div class="tab-pill">Worst Fit</div>
+            <div class="tab-pill active" id="memStratFirst" onclick="window.SimMem.setStrategy('first')">First Fit (Active)</div>
+            <div class="tab-pill" id="memStratBest" onclick="window.SimMem.setStrategy('best')">Best Fit</div>
+            <div class="tab-pill" id="memStratWorst" onclick="window.SimMem.setStrategy('worst')">Worst Fit</div>
         </div>
     </div>
     <div class="control-group">
-        <button class="btn btn-primary">+ Allocate Process</button>
-        <button class="btn btn-secondary">Deallocate Process...</button>
-        <button class="btn btn-secondary" style="background: #0369a1; color: white;">Run Memory Compaction</button>
+        <button class="btn btn-primary" onclick="window.SimMem.allocatePrompt()">+ Allocate Process</button>
+        <button class="btn btn-secondary" onclick="window.SimMem.deallocatePrompt()">Deallocate Process...</button>
+        <button class="btn btn-secondary" style="background: #0369a1; color: white;" onclick="window.SimMem.compact()">Run Memory Compaction</button>
+        <button class="btn btn-secondary" onclick="window.SimMem.reset()">Reset</button>
     </div>
 </div>
 
 <div class="metrics-grid">
     <div class="metric-card">
         <div class="metric-label">Total Physical Memory</div>
-        <div class="metric-val">1700 KB</div>
+        <div class="metric-val" id="memMetricTotal">1700 KB</div>
         <div class="metric-sub">5 Initial Partitions</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Total Allocated Space</div>
-        <div class="metric-val cyan">1167 KB</div>
-        <div class="metric-sub">4 Active Processes</div>
+        <div class="metric-val cyan" id="memMetricAllocated">1167 KB</div>
+        <div class="metric-sub">Active Processes</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Total Free Memory Holes</div>
-        <div class="metric-val emerald">533 KB</div>
-        <div class="metric-sub">Blocks 0, 2 & Block 4 tail</div>
+        <div class="metric-val emerald" id="memMetricFree">533 KB</div>
+        <div class="metric-sub">Available Space</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Internal Fragmentation</div>
-        <div class="metric-val amber">476 KB</div>
+        <div class="metric-val amber" id="memMetricInternalFrag">476 KB</div>
         <div class="metric-sub">Waste inside allocated blocks</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Allocation Efficiency</div>
-        <div class="metric-val emerald">68.6%</div>
+        <div class="metric-val emerald" id="memMetricEfficiency">68.6%</div>
         <div class="metric-sub">External Frag: 0 KB</div>
     </div>
 </div>
@@ -1657,93 +1687,31 @@ tr:hover { background: rgba(56, 189, 248, 0.03); }
         <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Continuous Physical Memory Address Space (0 KB - 1700 KB)</span>
         <span class="badge badge-emerald">Mode: Variable Partition Allocation</span>
     </div>
-    <div class="mem-visual-bar">
-        <div class="mem-seg free" style="width: 5.9%;">Block 0<br>(100K Free)</div>
-        <div class="mem-seg" style="width: 12.5%; background: #4f46e5;">P1: 212 KB</div>
-        <div class="mem-seg internal-frag" style="width: 16.9%;">Frag: 288 KB</div>
-        <div class="mem-seg free" style="width: 11.8%;">Block 2<br>(200K Free)</div>
-        <div class="mem-seg" style="width: 6.6%; background: #059669;">P3: 112 KB</div>
-        <div class="mem-seg internal-frag" style="width: 11.0%;">Frag: 188 KB</div>
-        <div class="mem-seg" style="width: 24.5%; background: #0891b2;">P2: 417 KB</div>
-        <div class="mem-seg free" style="width: 10.8%;">Block 4 Free (183 KB)</div>
-    </div>
-    <div class="mem-ticks">
-        <span>0 KB</span>
-        <span>100 KB</span>
-        <span>312 KB</span>
-        <span>600 KB</span>
-        <span>800 KB</span>
-        <span>912 KB</span>
-        <span>1100 KB</span>
-        <span>1517 KB</span>
-        <span>1700 KB</span>
+    <div class="mem-visual-bar" id="memVisualBar">
+        <!-- Dynamically rendered -->
     </div>
 </div>
 
 <div class="two-col">
     <div class="table-card">
         <div class="table-header">
-            <span>Physical Memory Partition Map</span>
+            <span>Partition Status Table</span>
             <span class="badge badge-indigo">5 Blocks</span>
         </div>
         <table>
             <thead>
                 <tr>
-                    <th>Block</th>
+                    <th>Partition</th>
                     <th>Base Addr</th>
                     <th>Block Size</th>
                     <th>Occupant</th>
-                    <th>Used</th>
+                    <th>Used Size</th>
                     <th>Internal Frag</th>
                     <th>Status</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>Block 0</td>
-                    <td>0 KB</td>
-                    <td>100 KB</td>
-                    <td>—</td>
-                    <td>0 KB</td>
-                    <td>0 KB</td>
-                    <td><span class="badge badge-amber">Free Hole</span></td>
-                </tr>
-                <tr>
-                    <td>Block 1</td>
-                    <td>100 KB</td>
-                    <td>500 KB</td>
-                    <td><strong>P1</strong></td>
-                    <td>212 KB</td>
-                    <td>288 KB</td>
-                    <td><span class="badge badge-emerald">Allocated</span></td>
-                </tr>
-                <tr>
-                    <td>Block 2</td>
-                    <td>600 KB</td>
-                    <td>200 KB</td>
-                    <td>—</td>
-                    <td>0 KB</td>
-                    <td>0 KB</td>
-                    <td><span class="badge badge-amber">Free Hole</span></td>
-                </tr>
-                <tr>
-                    <td>Block 3</td>
-                    <td>800 KB</td>
-                    <td>300 KB</td>
-                    <td><strong>P3</strong></td>
-                    <td>112 KB</td>
-                    <td>188 KB</td>
-                    <td><span class="badge badge-emerald">Allocated</span></td>
-                </tr>
-                <tr>
-                    <td>Block 4</td>
-                    <td>1100 KB</td>
-                    <td>600 KB</td>
-                    <td><strong>P2</strong></td>
-                    <td>417 KB</td>
-                    <td>0 KB (Split)</td>
-                    <td><span class="badge badge-emerald">Allocated</span></td>
-                </tr>
+            <tbody id="memPartitionTableBody">
+                <!-- Dynamically populated -->
             </tbody>
         </table>
     </div>
@@ -1751,7 +1719,7 @@ tr:hover { background: rgba(56, 189, 248, 0.03); }
     <div class="table-card">
         <div class="table-header">
             <span>Process Allocation Queue & Requests</span>
-            <span class="badge badge-emerald">All 4 Housed</span>
+            <span class="badge badge-emerald">Live Queue</span>
         </div>
         <table>
             <thead>
@@ -1763,42 +1731,14 @@ tr:hover { background: rgba(56, 189, 248, 0.03); }
                     <th>Algorithm Decision</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong style="color: #818cf8;">P1</strong></td>
-                    <td>212 KB</td>
-                    <td>Block 1 (500 KB)</td>
-                    <td>100 KB</td>
-                    <td>First partition >= 212 KB</td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #22d3ee;">P2</strong></td>
-                    <td>417 KB</td>
-                    <td>Block 4 (600 KB)</td>
-                    <td>1100 KB</td>
-                    <td>First partition >= 417 KB</td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #34d399;">P3</strong></td>
-                    <td>112 KB</td>
-                    <td>Block 2 (200 KB)</td>
-                    <td>600 KB</td>
-                    <td>First partition >= 112 KB</td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #fb7185;">P4</strong></td>
-                    <td>426 KB</td>
-                    <td>Block 4 (Tail split)</td>
-                    <td>1517 KB</td>
-                    <td>Fits in remaining partition space</td>
-                </tr>
+            <tbody id="memProcessTableBody">
+                <!-- Dynamically populated -->
             </tbody>
         </table>
     </div>
 </div>
-        </div>
       </div>
-
+</div>
       <!-- Tab 2: Live Host RAM & Virtual Swap -->
       <div id="memSubViewHost" style="display: none;">
         <div class="card">
@@ -1819,12 +1759,95 @@ tr:hover { background: rgba(56, 189, 248, 0.03); }
 
     <!-- 4. FILE SYSTEM VIEW -->
     <section id="view-filesystem" class="view-section">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title-left">Mounted Storage & Volume Explorer</div>
+      <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        
+        <!-- Module Header Banner -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px 20px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #38bdf8); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: white;">FS</div>
+            <div>
+              <div style="font-size: 16px; font-weight: 700; color: #ffffff;">Interactive File System & Storage Explorer</div>
+              <div style="font-size: 11px; color: #94a3b8;">Real-time Directory Drill-down, Live File Management & Storage Partition Telemetry</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Live System Sync</span>
+            <span class="badge" id="fsItemCount" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">0 objects</span>
+          </div>
         </div>
-        <div id="fsContent" style="font-size:13px;">
-          Loading file system partitions...
+
+        <!-- Storage Partitions / Drive Volumes Overview -->
+        <div>
+          <div style="font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">DETECTED MOUNTED VOLUMES & PARTITIONS</div>
+          <div id="fsDrivesContainer" style="display: flex; gap: 12px; flex-wrap: wrap;"></div>
+        </div>
+
+        <!-- Navigation Toolbar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px 14px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 5px;" onclick="window.FileSystemExplorer.goUp()">
+              ⬆ Up
+            </button>
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="window.FileSystemExplorer.navigate('C:/Users/swana/.gemini/antigravity/scratch/os-dashboard')">
+              📁 Project Dir
+            </button>
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="window.FileSystemExplorer.navigate('C:/')">
+              💾 C:\ Drive
+            </button>
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="window.FileSystemExplorer.navigate(window.FileSystemExplorer.currentPath)">
+              🔄 Refresh
+            </button>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="fsSearchInput" class="text-input" placeholder="🔍 Filter current folder..." style="width: 200px;" oninput="window.FileSystemExplorer.filter(this.value)">
+            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="window.FileSystemExplorer.mkdirPrompt()">
+              ➕ New Folder
+            </button>
+            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; background: #059669;" onclick="window.FileSystemExplorer.createFilePrompt()">
+              ➕ New File
+            </button>
+          </div>
+        </div>
+
+        <!-- Breadcrumb Path Navigator -->
+        <div id="fsBreadcrumbs" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; background: #161922; padding: 10px 16px; border-radius: 6px; border: 1px solid #232734;">
+          <span class="crumb active">💻 Root (Storage Volumes)</span>
+        </div>
+
+        <!-- Explorer Files/Folders Table -->
+        <div style="overflow-x: auto; background: #161922; border: 1px solid #232734; border-radius: 8px;">
+          <table class="data-table" style="margin: 0; width: 100%;">
+            <thead>
+              <tr style="background: #1e293b;">
+                <th style="padding: 10px 14px;">Name</th>
+                <th style="padding: 10px 14px; width: 140px;">Type</th>
+                <th style="padding: 10px 14px; width: 110px;">Size</th>
+                <th style="padding: 10px 14px; width: 160px;">Date Modified</th>
+                <th style="padding: 10px 14px; width: 120px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="fsTableBody">
+              <tr><td colspan="5" style="text-align: center; color: #64748b; padding: 24px;">Loading file system...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- File Preview Modal -->
+      <div id="fsPreviewModal" class="modal-overlay" style="display: none;" onclick="if(event.target===this) window.FileSystemExplorer.closePreview()">
+        <div class="modal-dialog">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #334155; background: #1e293b; border-radius: 10px 10px 0 0;">
+            <div>
+              <div id="fsPreviewTitle" style="font-weight: 700; font-size: 15px; color: #fff;">File Preview</div>
+              <div id="fsPreviewMeta" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">-</div>
+            </div>
+            <button class="action-btn" style="padding: 4px 10px; font-size: 14px;" onclick="window.FileSystemExplorer.closePreview()">✕ Close</button>
+          </div>
+          <div style="padding: 16px; overflow: auto; flex: 1; background: #0b1120;">
+            <pre id="fsPreviewBody" style="margin: 0; font-family: 'Consolas', 'Fira Code', monospace; font-size: 12px; color: #e2e8f0; line-height: 1.5; white-space: pre-wrap; word-break: break-all;"></pre>
+          </div>
         </div>
       </div>
     </section>
@@ -2110,7 +2133,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
             </div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Interactive</span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Real-Time Interactive</span>
             <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.1</span>
           </div>
         </div>
@@ -2118,57 +2141,55 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
 <div class="control-ribbon">
     <div class="control-group">
         <span class="control-label">Algorithm:</span>
-        <select class="select-input">
-            <option selected>Shortest Remaining Time First (SRTF - Preemptive)</option>
-            <option>First-Come, First-Served (FCFS)</option>
-            <option>Shortest Job First (SJF - Non-Preemptive)</option>
-            <option>Priority Scheduling (Preemptive)</option>
-            <option>Priority Scheduling (Non-Preemptive)</option>
-            <option>Round Robin (RR)</option>
+        <select id="cpuAlgoSelect" class="select-input" onchange="window.SimCpu.onAlgoChange()">
+            <option value="SRTF" selected>Shortest Remaining Time First (SRTF - Preemptive)</option>
+            <option value="FCFS">First-Come, First-Served (FCFS)</option>
+            <option value="SJF">Shortest Job First (SJF - Non-Preemptive)</option>
+            <option value="Priority-Preemptive">Priority Scheduling (Preemptive)</option>
+            <option value="Priority-NonPreemptive">Priority Scheduling (Non-Preemptive)</option>
+            <option value="RR">Round Robin (RR)</option>
         </select>
         <span class="control-label" style="margin-left: 10px;">Quantum:</span>
-        <input type="text" class="text-input" style="width: 55px; opacity: 0.5;" value="N/A" disabled>
+        <input type="number" id="cpuQuantumInput" class="text-input" style="width: 55px; opacity: 0.5;" value="2" min="1" disabled onchange="window.SimCpu.run()">
         <span class="control-label" style="margin-left: 10px;">Context Switch:</span>
-        <input type="text" class="text-input" style="width: 55px;" value="0 ms">
+        <input type="number" id="cpuContextSwitch" class="text-input" style="width: 55px;" value="0" min="0" max="5" onchange="window.SimCpu.run()">
     </div>
     <div class="control-group">
         <div class="playback-bar">
-            <button class="playback-btn">|&lt;</button>
-            <button class="playback-btn">&lt;&lt;</button>
-            <button class="playback-btn" style="color: #38bdf8;">▶ Play</button>
-            <button class="playback-btn">&gt;&gt;</button>
-            <button class="playback-btn">&gt;|</button>
+            <button class="playback-btn" onclick="window.SimCpu.step(-1)">|&lt;</button>
+            <button id="cpuPlayBtn" class="playback-btn" style="color: #38bdf8;" onclick="window.SimCpu.togglePlay()">▶ Play</button>
+            <button class="playback-btn" onclick="window.SimCpu.step(1)">&gt;|</button>
         </div>
-        <button class="btn btn-primary">Run Simulation</button>
-        <button class="btn btn-secondary">Reset</button>
+        <button class="btn btn-primary" onclick="window.SimCpu.run()">Run Simulation</button>
+        <button class="btn btn-secondary" onclick="window.SimCpu.reset()">Reset</button>
     </div>
 </div>
 
 <div class="metrics-grid">
     <div class="metric-card">
         <div class="metric-label">Average Waiting Time (AWT)</div>
-        <div class="metric-val emerald">4.20 ms</div>
-        <div class="metric-sub">▼ 38.2% vs FCFS (6.80 ms)</div>
+        <div class="metric-val emerald" id="cpuMetricAwt">4.20 ms</div>
+        <div class="metric-sub" id="cpuMetricAwtSub">▼ 38.2% vs FCFS (6.80 ms)</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Average Turnaround Time (ATAT)</div>
-        <div class="metric-val cyan">8.20 ms</div>
-        <div class="metric-sub">Optimal for static workload</div>
+        <div class="metric-val cyan" id="cpuMetricAtat">8.20 ms</div>
+        <div class="metric-sub" id="cpuMetricAtatSub">Optimal for static workload</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">CPU Utilization</div>
-        <div class="metric-val emerald">100.0%</div>
-        <div class="metric-sub">0 ms idle across 20 ms span</div>
+        <div class="metric-val emerald" id="cpuMetricUtil">100.0%</div>
+        <div class="metric-sub" id="cpuMetricUtilSub">0 ms idle across 20 ms span</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Context Switches</div>
-        <div class="metric-val amber">5 Switches</div>
-        <div class="metric-sub">Preemptions at t=4, t=8</div>
+        <div class="metric-val amber" id="cpuMetricSwitches">5 Switches</div>
+        <div class="metric-sub" id="cpuMetricSwitchesSub">Preemptions detected</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">System Throughput</div>
-        <div class="metric-val">0.250 /ms</div>
-        <div class="metric-sub">5 processes completed in 20 ms</div>
+        <div class="metric-val" id="cpuMetricThroughput">0.250 /ms</div>
+        <div class="metric-sub" id="cpuMetricThroughputSub">Processes completed per ms</div>
     </div>
 </div>
 
@@ -2177,37 +2198,26 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         <div class="gantt-container">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Execution Timeline (Dynamic Gantt Chart)</span>
-                <span class="badge badge-indigo">Time: t = 20 ms (Finished)</span>
+                <span class="badge badge-indigo" id="cpuGanttTimeBadge">Time: t = 20 ms (Finished)</span>
             </div>
-            <div class="gantt-chart">
-                <div class="gantt-bar" style="width: 15%; background: #6366f1;">P1 [0-3]</div>
-                <div class="gantt-bar" style="width: 5%; background: #06b6d4;">P2</div>
-                <div class="gantt-bar" style="width: 20%; background: #10b981;">P3 [4-8]</div>
-                <div class="gantt-bar" style="width: 10%; background: #f59e0b;">P5 [8-10]</div>
-                <div class="gantt-bar" style="width: 25%; background: #06b6d4;">P2 [10-15] (Resumed)</div>
-                <div class="gantt-bar" style="width: 25%; background: #f43f5e;">P4 [15-20]</div>
+            <div class="gantt-chart" id="cpuGanttBars">
+                <!-- Dynamically rendered by SimCpu -->
             </div>
-            <div class="gantt-timeline">
-                <span>0 ms</span>
-                <span>3</span>
-                <span>4</span>
-                <span>8</span>
-                <span>10</span>
-                <span>15</span>
-                <span>20 ms</span>
+            <div class="gantt-timeline" id="cpuGanttTimeline">
+                <!-- Dynamically rendered ticks -->
             </div>
 
-            <div class="preempt-callout">
+            <div class="preempt-callout" id="cpuPreemptCallout">
                 <span style="font-size: 14px;">⚡</span>
                 <div>
-                    <strong>Preemption Event Detected:</strong> At t = 4 ms, Process P3 (BT: 4 ms) preempted P2 (Remaining: 5 ms). At t = 8 ms, P5 (BT: 2 ms) preempted P2 (Remaining: 5 ms).
+                    <strong>Preemption Event Detected:</strong> Dynamic tracking active.
                 </div>
             </div>
         </div>
 
         <div class="table-card" style="padding: 12px 16px;">
-            <span style="font-weight: 600; font-size: 12px; color: #94a3b8; display: block; margin-bottom: 8px;">READY QUEUE STATE SNAPSHOT (AT t = 8 ms)</span>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <span style="font-weight: 600; font-size: 12px; color: #94a3b8; display: block; margin-bottom: 8px;">READY QUEUE STATE SNAPSHOT</span>
+            <div id="cpuReadyQueueSnapshot" style="display: flex; gap: 10px; align-items: center;">
                 <span class="badge badge-emerald" style="padding: 8px 12px; font-size: 12px;">Active Running: P5 (Remaining: 2 ms)</span>
                 <span style="color: #64748b; font-size: 16px;">➔</span>
                 <span class="badge badge-indigo" style="padding: 8px 12px; font-size: 12px;">Queue [0]: P2 (Remaining: 5 ms)</span>
@@ -2219,7 +2229,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
     <div class="table-card">
         <div class="table-header">
             <span>Process Input & Execution Results</span>
-            <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;">+ Add Process</button>
+            <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;" onclick="window.SimCpu.addProcessPrompt()">+ Add Process</button>
         </div>
         <table>
             <thead>
@@ -2234,57 +2244,8 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
                     <th>Status</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong style="color: #818cf8;">P1</strong></td>
-                    <td>0 ms</td>
-                    <td>3 ms</td>
-                    <td>3</td>
-                    <td>3 ms</td>
-                    <td>3 ms</td>
-                    <td>0 ms</td>
-                    <td><span class="badge badge-emerald">Done</span></td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #22d3ee;">P2</strong></td>
-                    <td>2 ms</td>
-                    <td>6 ms</td>
-                    <td>1</td>
-                    <td>15 ms</td>
-                    <td>13 ms</td>
-                    <td>7 ms</td>
-                    <td><span class="badge badge-emerald">Done</span></td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #34d399;">P3</strong></td>
-                    <td>4 ms</td>
-                    <td>4 ms</td>
-                    <td>4</td>
-                    <td>8 ms</td>
-                    <td>4 ms</td>
-                    <td>0 ms</td>
-                    <td><span class="badge badge-emerald">Done</span></td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #fb7185;">P4</strong></td>
-                    <td>6 ms</td>
-                    <td>5 ms</td>
-                    <td>2</td>
-                    <td>20 ms</td>
-                    <td>14 ms</td>
-                    <td>9 ms</td>
-                    <td><span class="badge badge-emerald">Done</span></td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #fbbf24;">P5</strong></td>
-                    <td>8 ms</td>
-                    <td>2 ms</td>
-                    <td>5</td>
-                    <td>10 ms</td>
-                    <td>2 ms</td>
-                    <td>0 ms</td>
-                    <td><span class="badge badge-emerald">Done</span></td>
-                </tr>
+            <tbody id="cpuProcessTableBody">
+                <!-- Populated dynamically -->
             </tbody>
         </table>
     </div>
@@ -2297,7 +2258,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
     <!-- SECTION 6.5 MODULE: CONTIGUOUS MEMORY MANAGEMENT & DYNAMIC PARTITIONING -->
     <!-- ============================================================== -->
     <section id="view-sim-memory" class="view-section">
-      <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+<div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
         
         <!-- Module Header Banner -->
         <div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px 20px;">
@@ -2309,7 +2270,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
             </div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Interactive</span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Real-Time Interactive</span>
             <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.2</span>
           </div>
         </div>
@@ -2318,42 +2279,43 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
     <div class="control-group">
         <span class="control-label">Allocation Strategy:</span>
         <div style="display: flex; gap: 6px;">
-            <div class="tab-pill active">First Fit (Active)</div>
-            <div class="tab-pill">Best Fit</div>
-            <div class="tab-pill">Worst Fit</div>
+            <div class="tab-pill active" id="memStratFirst" onclick="window.SimMem.setStrategy('first')">First Fit (Active)</div>
+            <div class="tab-pill" id="memStratBest" onclick="window.SimMem.setStrategy('best')">Best Fit</div>
+            <div class="tab-pill" id="memStratWorst" onclick="window.SimMem.setStrategy('worst')">Worst Fit</div>
         </div>
     </div>
     <div class="control-group">
-        <button class="btn btn-primary">+ Allocate Process</button>
-        <button class="btn btn-secondary">Deallocate Process...</button>
-        <button class="btn btn-secondary" style="background: #0369a1; color: white;">Run Memory Compaction</button>
+        <button class="btn btn-primary" onclick="window.SimMem.allocatePrompt()">+ Allocate Process</button>
+        <button class="btn btn-secondary" onclick="window.SimMem.deallocatePrompt()">Deallocate Process...</button>
+        <button class="btn btn-secondary" style="background: #0369a1; color: white;" onclick="window.SimMem.compact()">Run Memory Compaction</button>
+        <button class="btn btn-secondary" onclick="window.SimMem.reset()">Reset</button>
     </div>
 </div>
 
 <div class="metrics-grid">
     <div class="metric-card">
         <div class="metric-label">Total Physical Memory</div>
-        <div class="metric-val">1700 KB</div>
+        <div class="metric-val" id="memMetricTotal">1700 KB</div>
         <div class="metric-sub">5 Initial Partitions</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Total Allocated Space</div>
-        <div class="metric-val cyan">1167 KB</div>
-        <div class="metric-sub">4 Active Processes</div>
+        <div class="metric-val cyan" id="memMetricAllocated">1167 KB</div>
+        <div class="metric-sub">Active Processes</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Total Free Memory Holes</div>
-        <div class="metric-val emerald">533 KB</div>
-        <div class="metric-sub">Blocks 0, 2 & Block 4 tail</div>
+        <div class="metric-val emerald" id="memMetricFree">533 KB</div>
+        <div class="metric-sub">Available Space</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Internal Fragmentation</div>
-        <div class="metric-val amber">476 KB</div>
+        <div class="metric-val amber" id="memMetricInternalFrag">476 KB</div>
         <div class="metric-sub">Waste inside allocated blocks</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Allocation Efficiency</div>
-        <div class="metric-val emerald">68.6%</div>
+        <div class="metric-val emerald" id="memMetricEfficiency">68.6%</div>
         <div class="metric-sub">External Frag: 0 KB</div>
     </div>
 </div>
@@ -2363,93 +2325,31 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Continuous Physical Memory Address Space (0 KB - 1700 KB)</span>
         <span class="badge badge-emerald">Mode: Variable Partition Allocation</span>
     </div>
-    <div class="mem-visual-bar">
-        <div class="mem-seg free" style="width: 5.9%;">Block 0<br>(100K Free)</div>
-        <div class="mem-seg" style="width: 12.5%; background: #4f46e5;">P1: 212 KB</div>
-        <div class="mem-seg internal-frag" style="width: 16.9%;">Frag: 288 KB</div>
-        <div class="mem-seg free" style="width: 11.8%;">Block 2<br>(200K Free)</div>
-        <div class="mem-seg" style="width: 6.6%; background: #059669;">P3: 112 KB</div>
-        <div class="mem-seg internal-frag" style="width: 11.0%;">Frag: 188 KB</div>
-        <div class="mem-seg" style="width: 24.5%; background: #0891b2;">P2: 417 KB</div>
-        <div class="mem-seg free" style="width: 10.8%;">Block 4 Free (183 KB)</div>
-    </div>
-    <div class="mem-ticks">
-        <span>0 KB</span>
-        <span>100 KB</span>
-        <span>312 KB</span>
-        <span>600 KB</span>
-        <span>800 KB</span>
-        <span>912 KB</span>
-        <span>1100 KB</span>
-        <span>1517 KB</span>
-        <span>1700 KB</span>
+    <div class="mem-visual-bar" id="memVisualBar">
+        <!-- Dynamically rendered -->
     </div>
 </div>
 
 <div class="two-col">
     <div class="table-card">
         <div class="table-header">
-            <span>Physical Memory Partition Map</span>
+            <span>Partition Status Table</span>
             <span class="badge badge-indigo">5 Blocks</span>
         </div>
         <table>
             <thead>
                 <tr>
-                    <th>Block</th>
+                    <th>Partition</th>
                     <th>Base Addr</th>
                     <th>Block Size</th>
                     <th>Occupant</th>
-                    <th>Used</th>
+                    <th>Used Size</th>
                     <th>Internal Frag</th>
                     <th>Status</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>Block 0</td>
-                    <td>0 KB</td>
-                    <td>100 KB</td>
-                    <td>—</td>
-                    <td>0 KB</td>
-                    <td>0 KB</td>
-                    <td><span class="badge badge-amber">Free Hole</span></td>
-                </tr>
-                <tr>
-                    <td>Block 1</td>
-                    <td>100 KB</td>
-                    <td>500 KB</td>
-                    <td><strong>P1</strong></td>
-                    <td>212 KB</td>
-                    <td>288 KB</td>
-                    <td><span class="badge badge-emerald">Allocated</span></td>
-                </tr>
-                <tr>
-                    <td>Block 2</td>
-                    <td>600 KB</td>
-                    <td>200 KB</td>
-                    <td>—</td>
-                    <td>0 KB</td>
-                    <td>0 KB</td>
-                    <td><span class="badge badge-amber">Free Hole</span></td>
-                </tr>
-                <tr>
-                    <td>Block 3</td>
-                    <td>800 KB</td>
-                    <td>300 KB</td>
-                    <td><strong>P3</strong></td>
-                    <td>112 KB</td>
-                    <td>188 KB</td>
-                    <td><span class="badge badge-emerald">Allocated</span></td>
-                </tr>
-                <tr>
-                    <td>Block 4</td>
-                    <td>1100 KB</td>
-                    <td>600 KB</td>
-                    <td><strong>P2</strong></td>
-                    <td>417 KB</td>
-                    <td>0 KB (Split)</td>
-                    <td><span class="badge badge-emerald">Allocated</span></td>
-                </tr>
+            <tbody id="memPartitionTableBody">
+                <!-- Dynamically populated -->
             </tbody>
         </table>
     </div>
@@ -2457,7 +2357,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
     <div class="table-card">
         <div class="table-header">
             <span>Process Allocation Queue & Requests</span>
-            <span class="badge badge-emerald">All 4 Housed</span>
+            <span class="badge badge-emerald">Live Queue</span>
         </div>
         <table>
             <thead>
@@ -2469,41 +2369,14 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
                     <th>Algorithm Decision</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong style="color: #818cf8;">P1</strong></td>
-                    <td>212 KB</td>
-                    <td>Block 1 (500 KB)</td>
-                    <td>100 KB</td>
-                    <td>First partition >= 212 KB</td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #22d3ee;">P2</strong></td>
-                    <td>417 KB</td>
-                    <td>Block 4 (600 KB)</td>
-                    <td>1100 KB</td>
-                    <td>First partition >= 417 KB</td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #34d399;">P3</strong></td>
-                    <td>112 KB</td>
-                    <td>Block 2 (200 KB)</td>
-                    <td>600 KB</td>
-                    <td>First partition >= 112 KB</td>
-                </tr>
-                <tr>
-                    <td><strong style="color: #fb7185;">P4</strong></td>
-                    <td>426 KB</td>
-                    <td>Block 4 (Tail split)</td>
-                    <td>1517 KB</td>
-                    <td>Fits in remaining partition space</td>
-                </tr>
+            <tbody id="memProcessTableBody">
+                <!-- Dynamically populated -->
             </tbody>
         </table>
     </div>
 </div>
       </div>
-    </section>
+</section>
 
 
     <!-- ============================================================== -->
@@ -2522,7 +2395,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
             </div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Interactive</span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Real-Time Interactive</span>
             <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.3</span>
           </div>
         </div>
@@ -2530,104 +2403,66 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
 <div class="control-ribbon">
     <div class="control-group">
         <span class="control-label">Algorithm:</span>
-        <select class="select-input">
+        <select id="pageAlgoSelect" class="select-input" onchange="window.SimPaging.run()">
             <option selected>Least Recently Used (LRU)</option>
             <option>First-In, First-Out (FIFO)</option>
             <option>Optimal Page Replacement (OPT)</option>
             <option>Least Frequently Used (LFU)</option>
         </select>
         <span class="control-label" style="margin-left: 10px;">Frame Capacity:</span>
-        <select class="select-input">
+        <select id="pageFrameSelect" class="select-input" onchange="window.SimPaging.run()">
             <option>2 Frames</option>
             <option selected>3 Frames</option>
             <option>4 Frames</option>
             <option>5 Frames</option>
         </select>
+        <span class="control-label" style="margin-left: 10px;">Reference String:</span>
+        <input type="text" id="pageRefInput" class="text-input" style="width: 280px;" value="7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1" onchange="window.SimPaging.run()">
     </div>
     <div class="control-group">
-        <button class="btn btn-primary">Simulate References</button>
-        <button class="btn btn-secondary" style="border: 1px solid #e11d48; color: #fda4af;">Test Belady's Anomaly</button>
+        <button class="btn btn-primary" onclick="window.SimPaging.run()">Simulate References</button>
+        <button class="btn btn-secondary" style="border: 1px solid #e11d48; color: #fda4af;" onclick="window.SimPaging.testBelady()">Test Belady's Anomaly</button>
     </div>
 </div>
 
 <div class="metrics-grid">
     <div class="metric-card">
         <div class="metric-label">Total References</div>
-        <div class="metric-val">20</div>
+        <div class="metric-val" id="pageMetricTotal">20</div>
         <div class="metric-sub">Standard Benchmark String</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Total Page Hits</div>
-        <div class="metric-val emerald">8 Hits</div>
-        <div class="metric-sub">Hit Ratio: 40.0%</div>
+        <div class="metric-val emerald" id="pageMetricHits">8 Hits</div>
+        <div class="metric-sub">Calculated in real time</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Total Page Faults (Misses)</div>
-        <div class="metric-val rose">12 Faults</div>
-        <div class="metric-sub">Fault Ratio: 60.0%</div>
+        <div class="metric-val rose" id="pageMetricFaults">12 Faults</div>
+        <div class="metric-sub">Calculated in real time</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Belady's Anomaly Status</div>
-        <div class="metric-val cyan">Immune</div>
+        <div class="metric-val cyan" id="pageMetricBelady">Immune</div>
         <div class="metric-sub">Stack algorithm verified</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Optimal Comparison</div>
-        <div class="metric-val amber">9 Bound</div>
-        <div class="metric-sub">LRU within 3 faults of OPT</div>
+        <div class="metric-val amber" id="pageMetricOptimal">12 Total</div>
+        <div class="metric-sub">Page fault metric</div>
     </div>
 </div>
 
-<div class="ref-table-box">
+<div class="table-card" style="padding: 16px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Step-by-Step Frame Residency Matrix (20 References, 3 Frames)</span>
-        <div style="display: flex; gap: 8px;">
-            <span class="badge badge-emerald">Hit (Green)</span>
-            <span class="badge badge-rose">Fault / Miss (Red)</span>
-        </div>
+        <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Step-by-Step Frame Residency & Page Fault Matrix</span>
+        <span class="badge badge-emerald">Real-Time Simulation Grid</span>
     </div>
-
-    <div class="matrix-grid">
-        <div class="cell-hdr" style="color: #94a3b8; text-align: left; padding-left: 8px;">Page Ref:</div>
-        <div class="cell-hdr">7</div><div class="cell-hdr">0</div><div class="cell-hdr">1</div><div class="cell-hdr">2</div><div class="cell-hdr">0</div><div class="cell-hdr">3</div><div class="cell-hdr">0</div><div class="cell-hdr">4</div><div class="cell-hdr">2</div><div class="cell-hdr">3</div><div class="cell-hdr">0</div><div class="cell-hdr">3</div><div class="cell-hdr">2</div><div class="cell-hdr">1</div><div class="cell-hdr">2</div><div class="cell-hdr">0</div><div class="cell-hdr">1</div><div class="cell-hdr">7</div><div class="cell-hdr">0</div><div class="cell-hdr">1</div>
-
-        <div class="cell-frame" style="color: #94a3b8; font-weight: 700;">Frame 0</div>
-        <div class="cell-frame">7</div><div class="cell-frame">7</div><div class="cell-frame">7</div><div class="cell-frame" style="color: #38bdf8;">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame" style="color: #38bdf8;">4</div><div class="cell-frame">4</div><div class="cell-frame">4</div><div class="cell-frame" style="color: #38bdf8;">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame" style="color: #38bdf8;">1</div><div class="cell-frame">1</div><div class="cell-frame">1</div><div class="cell-frame">1</div><div class="cell-frame">1</div><div class="cell-frame">1</div><div class="cell-frame">1</div>
-
-        <div class="cell-frame" style="color: #94a3b8; font-weight: 700;">Frame 1</div>
-        <div class="cell-frame" style="color: #475569;">—</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame" style="color: #38bdf8;">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame">2</div><div class="cell-frame" style="color: #38bdf8;">7</div><div class="cell-frame">7</div><div class="cell-frame">7</div>
-
-        <div class="cell-frame" style="color: #94a3b8; font-weight: 700;">Frame 2</div>
-        <div class="cell-frame" style="color: #475569;">—</div><div class="cell-frame" style="color: #475569;">—</div><div class="cell-frame">1</div><div class="cell-frame">1</div><div class="cell-frame">1</div><div class="cell-frame" style="color: #38bdf8;">3</div><div class="cell-frame">3</div><div class="cell-frame">3</div><div class="cell-frame">3</div><div class="cell-frame">3</div><div class="cell-frame">3</div><div class="cell-frame">3</div><div class="cell-frame">3</div><div class="cell-frame">3</div><div class="cell-frame">3</div><div class="cell-frame" style="color: #38bdf8;">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div><div class="cell-frame">0</div>
-
-        <div class="cell-hdr" style="color: #94a3b8; font-weight: 700;">Result</div>
-        <div class="cell-fault">M</div><div class="cell-fault">M</div><div class="cell-fault">M</div><div class="cell-fault">M</div><div class="cell-hit">H</div><div class="cell-fault">M</div><div class="cell-hit">H</div><div class="cell-fault">M</div><div class="cell-fault">M</div><div class="cell-fault">M</div><div class="cell-fault">M</div><div class="cell-hit">H</div><div class="cell-hit">H</div><div class="cell-fault">M</div><div class="cell-hit">H</div><div class="cell-fault">M</div><div class="cell-hit">H</div><div class="cell-fault">M</div><div class="cell-hit">H</div><div class="cell-hit">H</div>
+    <div id="pageSimulationGrid" style="overflow-x: auto;">
+        <!-- Dynamically rendered -->
     </div>
 </div>
 
-<div class="two-col">
-    <div class="table-card" style="padding: 16px;">
-        <span style="font-weight: 700; font-size: 13px; color: #cbd5e1; display: block; margin-bottom: 8px;">Belady's Anomaly Experimental Verification Panel</span>
-        <p style="color: #94a3b8; font-size: 12px; margin-bottom: 12px;">Under FIFO, increasing allocated memory frame capacity from 3 to 4 frames increases the total page faults from 9 to 10 on reference sequence <code>[1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5]</code>.</p>
-        <div style="display: flex; gap: 12px;">
-            <div style="flex: 1; background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid #334155;">
-                <span style="font-size: 11px; color: #94a3b8;">FIFO (3 Frames)</span>
-                <div style="font-size: 18px; font-weight: 700; color: #34d399;">9 Faults</div>
-            </div>
-            <div style="flex: 1; background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid #e11d48;">
-                <span style="font-size: 11px; color: #fb7185;">FIFO (4 Frames) - Anomaly!</span>
-                <div style="font-size: 18px; font-weight: 700; color: #fb7185;">10 Faults (▲ +1)</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="table-card" style="padding: 16px;">
-        <span style="font-weight: 700; font-size: 13px; color: #cbd5e1; display: block; margin-bottom: 8px;">Stack Algorithm Monotonicity Proof</span>
-        <p style="color: #94a3b8; font-size: 12px; line-height: 1.5;">
-            LRU and Optimal algorithms strictly guarantee memory inclusion property where resident pages in m frames is a subset of m+1 frames at any reference time t. Therefore, LRU is immune to Belady's Anomaly, guaranteeing non-increasing faults as frame allocation grows.
-        </p>
-    </div>
-</div>
       </div>
     </section>
 
@@ -2648,7 +2483,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
             </div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Interactive</span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Real-Time Interactive</span>
             <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.4</span>
           </div>
         </div>
@@ -2656,143 +2491,88 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
 <div class="control-ribbon">
     <div class="control-group">
         <span class="control-label">Algorithm:</span>
-        <select class="select-input">
+        <select id="diskAlgoSelect" class="select-input" onchange="window.SimDisk.run()">
             <option selected>SCAN (Elevator Algorithm)</option>
-            <option>First-Come, First-Served (FCFS)</option>
             <option>Shortest Seek Time First (SSTF)</option>
+            <option>First-Come, First-Served (FCFS)</option>
             <option>Circular SCAN (C-SCAN)</option>
             <option>LOOK</option>
             <option>C-LOOK</option>
         </select>
         <span class="control-label" style="margin-left: 10px;">Initial Head:</span>
-        <input type="text" class="text-input" style="width: 50px;" value="53">
+        <input type="number" id="diskHeadInput" class="text-input" style="width: 55px;" value="53" min="0" max="199" onchange="window.SimDisk.run()">
         <span class="control-label" style="margin-left: 10px;">Direction:</span>
-        <select class="select-input">
+        <select id="diskDirSelect" class="select-input" onchange="window.SimDisk.run()">
             <option selected>Towards Higher Cylinders (199)</option>
             <option>Towards Lower Cylinders (0)</option>
         </select>
+        <span class="control-label" style="margin-left: 10px;">Request Queue:</span>
+        <input type="text" id="diskQueueInput" class="text-input" style="width: 220px;" value="98, 183, 37, 122, 14, 124, 65, 67" onchange="window.SimDisk.run()">
     </div>
     <div class="control-group">
-        <button class="btn btn-primary">Simulate Trajectory</button>
-        <button class="btn btn-secondary">Random Requests</button>
+        <button class="btn btn-primary" onclick="window.SimDisk.run()">Simulate Trajectory</button>
+        <button class="btn btn-secondary" onclick="window.SimDisk.randomRequests()">Random Requests</button>
     </div>
 </div>
 
 <div class="metrics-grid">
     <div class="metric-card">
         <div class="metric-label">Total Head Movement</div>
-        <div class="metric-val emerald">331 Cylinders</div>
+        <div class="metric-val emerald" id="diskMetricMovement">331 Cylinders</div>
         <div class="metric-sub">(199-53) + (199-14)</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Average Seek Distance</div>
-        <div class="metric-val cyan">41.38 Cyl/Req</div>
+        <div class="metric-val cyan" id="diskMetricAvgSeek">41.38 Cyl/Req</div>
         <div class="metric-sub">Across 8 requests</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">FCFS Seek Distance</div>
-        <div class="metric-val rose">640 Cylinders</div>
-        <div class="metric-sub">SCAN achieves 48.3% saving</div>
+        <div class="metric-val rose" id="diskMetricFcfsSeek">640 Cylinders</div>
+        <div class="metric-sub">Baseline for comparison</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Direction Reversals</div>
-        <div class="metric-val amber">1 Reversal</div>
-        <div class="metric-sub">Boundary hit at track 199</div>
+        <div class="metric-val amber" id="diskMetricReversals">1 Reversal</div>
+        <div class="metric-sub">Boundary turnaround</div>
     </div>
     <div class="metric-card">
         <div class="metric-label">Spindle Boundary Range</div>
-        <div class="metric-val">0 - 199</div>
+        <div class="metric-val" id="diskMetricBoundary">0 - 199</div>
         <div class="metric-sub">200 Total Cylinders</div>
     </div>
 </div>
 
 <div class="two-col">
     <div class="chart-box">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Disk Head Movement Trajectory (Cylinder vs Step Order)</span>
-            <span class="badge badge-emerald">SCAN Elevator Mode</span>
+            <span class="badge badge-emerald">Interactive Trajectory Plot</span>
         </div>
         
-        <svg width="100%" height="280" viewBox="0 0 650 280" style="background: #0f172a; border-radius: 6px; border: 1px solid #334155;">
-            <line x1="40" y1="20" x2="40" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="82" y1="20" x2="82" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="151" y1="20" x2="151" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="199" y1="20" x2="199" y2="250" stroke="#334155" stroke-dasharray="3,3"/>
-            <line x1="235" y1="20" x2="235" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="241" y1="20" x2="241" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="334" y1="20" x2="334" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="406" y1="20" x2="406" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="412" y1="20" x2="412" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="589" y1="20" x2="589" y2="250" stroke="#1e293b" stroke-width="1"/>
-            <line x1="637" y1="20" x2="637" y2="250" stroke="#e11d48" stroke-dasharray="4,4"/>
-
-            <text x="40" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">0</text>
-            <text x="82" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">14</text>
-            <text x="151" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">37</text>
-            <text x="199" y="268" fill="#38bdf8" font-size="10" font-weight="bold" text-anchor="middle">53 (H0)</text>
-            <text x="235" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">65</text>
-            <text x="250" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">67</text>
-            <text x="334" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">98</text>
-            <text x="406" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">122</text>
-            <text x="425" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">124</text>
-            <text x="589" y="268" fill="#94a3b8" font-size="10" text-anchor="middle">183</text>
-            <text x="630" y="268" fill="#f43f5e" font-size="10" font-weight="bold" text-anchor="middle">199 (End)</text>
-
-            <polyline fill="none" stroke="#38bdf8" stroke-width="3" points="
-                199,40  
-                235,62  
-                241,84  
-                334,106 
-                406,128 
-                412,150 
-                589,172 
-                637,194 
-                151,216 
-                82,238
-            "/>
-
-            <circle cx="199" cy="40" r="5" fill="#38bdf8" stroke="#ffffff" stroke-width="2"/>
-            <circle cx="235" cy="62" r="4" fill="#34d399"/>
-            <circle cx="241" cy="84" r="4" fill="#34d399"/>
-            <circle cx="334" cy="106" r="4" fill="#34d399"/>
-            <circle cx="406" cy="128" r="4" fill="#34d399"/>
-            <circle cx="412" cy="150" r="4" fill="#34d399"/>
-            <circle cx="589" cy="172" r="4" fill="#34d399"/>
-            <circle cx="637" cy="194" r="5" fill="#f43f5e" stroke="#ffffff" stroke-width="2"/>
-            <circle cx="151" cy="216" r="4" fill="#fbbf24"/>
-            <circle cx="82" cy="238" r="5" fill="#a855f7" stroke="#ffffff" stroke-width="2"/>
-
-            <text x="630" y="185" fill="#f43f5e" font-size="10" font-weight="bold" text-anchor="end">Boundary Reversal (199)</text>
-            <text x="90" y="235" fill="#a855f7" font-size="10" font-weight="bold">Terminal Head (14)</text>
+        <svg id="diskTrajectorySvg" width="100%" height="280" viewBox="0 0 650 280" style="background: #0f172a; border-radius: 6px; border: 1px solid #334155;">
+            <!-- Dynamically rendered -->
         </svg>
     </div>
 
     <div class="table-card">
         <div class="table-header">
-            <span>Servicing Sequence & Seek Distance Log</span>
-            <span class="badge badge-indigo">8 Requests</span>
+            <span>Disk Trajectory Step-by-Step Log</span>
+            <span class="badge badge-indigo">Execution Trace</span>
         </div>
         <table>
             <thead>
                 <tr>
                     <th>Step</th>
-                    <th>Target Cyl</th>
-                    <th>Seek Delta</th>
+                    <th>Target Track</th>
                     <th>Direction</th>
-                    <th>Cumulative Seek</th>
+                    <th>Seek Delta</th>
+                    <th>Cumulative</th>
+                    <th>Remarks</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr><td>0</td><td>53 (Initial)</td><td>0</td><td>Start</td><td>0 Cyl</td></tr>
-                <tr><td>1</td><td>65</td><td>+12</td><td>Upward</td><td>12 Cyl</td></tr>
-                <tr><td>2</td><td>67</td><td>+2</td><td>Upward</td><td>14 Cyl</td></tr>
-                <tr><td>3</td><td>98</td><td>+31</td><td>Upward</td><td>45 Cyl</td></tr>
-                <tr><td>4</td><td>122</td><td>+24</td><td>Upward</td><td>69 Cyl</td></tr>
-                <tr><td>5</td><td>124</td><td>+2</td><td>Upward</td><td>71 Cyl</td></tr>
-                <tr><td>6</td><td>183</td><td>+59</td><td>Upward</td><td>130 Cyl</td></tr>
-                <tr><td>7</td><td>199 (Boundary)</td><td>+16</td><td>Reverse</td><td>146 Cyl</td></tr>
-                <tr><td>8</td><td>37</td><td>+162</td><td>Downward</td><td>308 Cyl</td></tr>
-                <tr><td>9</td><td>14</td><td>+23</td><td>Downward</td><td><strong>331 Cyl</strong></td></tr>
+            <tbody id="diskTrajectoryTableBody">
+                <!-- Dynamically populated -->
             </tbody>
         </table>
     </div>
@@ -2817,12 +2597,12 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
             </div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Interactive</span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Real-Time Interactive</span>
             <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.5</span>
           </div>
         </div>
 
-<div class="safe-banner">
+<div class="safe-banner" id="deadlockBanner">
     <div style="display: flex; align-items: center; gap: 12px;">
         <div style="width: 32px; height: 32px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: white;">✓</div>
         <div>
@@ -2831,8 +2611,10 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         </div>
     </div>
     <div style="display: flex; gap: 10px;">
-        <span class="badge badge-emerald">Available: [ A: 3, B: 3, C: 2 ]</span>
-        <button class="btn btn-primary" style="background: #059669;">Evaluate Request</button>
+        <span class="badge badge-emerald" id="deadlockAvailBadge">Available: [ A: 3, B: 3, C: 2 ]</span>
+        <button class="btn btn-primary" style="background: #059669;" onclick="window.SimDeadlock.evaluateRequestPrompt()">Evaluate Request</button>
+        <button class="btn btn-secondary" style="background: #b91c1c; color: white;" onclick="window.SimDeadlock.triggerDeadlock()">Trigger Deadlock State</button>
+        <button class="btn btn-secondary" onclick="window.SimDeadlock.reset()">Reset</button>
     </div>
 </div>
 
@@ -2853,87 +2635,19 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
                     <th>Work Vector After Execution</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong>P0</strong></td>
-                    <td>0 &nbsp; 1 &nbsp; 0</td>
-                    <td>7 &nbsp; 5 &nbsp; 3</td>
-                    <td><span style="color: #fb7185;">7 &nbsp; 4 &nbsp; 3</span></td>
-                    <td>Step 4</td>
-                    <td>[ 7 &nbsp; 4 &nbsp; 5 ]</td>
-                </tr>
-                <tr style="background: rgba(16, 185, 129, 0.08);">
-                    <td><strong style="color: #34d399;">P1</strong></td>
-                    <td>2 &nbsp; 0 &nbsp; 0</td>
-                    <td>3 &nbsp; 2 &nbsp; 2</td>
-                    <td><strong style="color: #34d399;">1 &nbsp; 2 &nbsp; 2 &le; [3 3 2]</strong></td>
-                    <td><strong>Step 1 (First)</strong></td>
-                    <td>[ 5 &nbsp; 3 &nbsp; 2 ]</td>
-                </tr>
-                <tr>
-                    <td><strong>P2</strong></td>
-                    <td>3 &nbsp; 0 &nbsp; 2</td>
-                    <td>9 &nbsp; 0 &nbsp; 2</td>
-                    <td><span style="color: #fb7185;">6 &nbsp; 0 &nbsp; 0</span></td>
-                    <td>Step 5 (Final)</td>
-                    <td>[ 10 &nbsp; 5 &nbsp; 7 ] (All Released)</td>
-                </tr>
-                <tr style="background: rgba(16, 185, 129, 0.08);">
-                    <td><strong style="color: #34d399;">P3</strong></td>
-                    <td>2 &nbsp; 1 &nbsp; 1</td>
-                    <td>2 &nbsp; 2 &nbsp; 2</td>
-                    <td><strong style="color: #34d399;">0 &nbsp; 1 &nbsp; 1 &le; [5 3 2]</strong></td>
-                    <td><strong>Step 2</strong></td>
-                    <td>[ 7 &nbsp; 4 &nbsp; 3 ]</td>
-                </tr>
-                <tr style="background: rgba(16, 185, 129, 0.08);">
-                    <td><strong style="color: #34d399;">P4</strong></td>
-                    <td>0 &nbsp; 0 &nbsp; 2</td>
-                    <td>4 &nbsp; 3 &nbsp; 3</td>
-                    <td><strong style="color: #34d399;">4 &nbsp; 3 &nbsp; 1 &le; [7 4 3]</strong></td>
-                    <td><strong>Step 3</strong></td>
-                    <td>[ 7 &nbsp; 4 &nbsp; 5 ]</td>
-                </tr>
+            <tbody id="deadlockMatrixTableBody">
+                <!-- Dynamically populated -->
             </tbody>
         </table>
     </div>
 
-    <div class="rag-canvas-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Resource Allocation Graph (RAG Topology)</span>
-            <span class="badge badge-emerald">0 Cycles (Acyclic)</span>
+    <div class="chart-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Resource Allocation Graph (RAG) Topology</span>
+            <span class="badge badge-emerald">Dynamic Graph</span>
         </div>
-
-        <svg width="100%" height="260" viewBox="0 0 450 260" style="background: #0f172a; border-radius: 6px; border: 1px solid #334155;">
-            <rect x="50" y="30" width="70" height="50" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
-            <text x="85" y="50" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">Res A (10)</text>
-            <circle cx="70" cy="65" r="3" fill="#38bdf8"/><circle cx="85" cy="65" r="3" fill="#38bdf8"/><circle cx="100" cy="65" r="3" fill="#38bdf8"/>
-
-            <rect x="330" y="30" width="70" height="50" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
-            <text x="365" y="50" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">Res B (5)</text>
-            <circle cx="355" cy="65" r="3" fill="#38bdf8"/><circle cx="375" cy="65" r="3" fill="#38bdf8"/>
-
-            <rect x="190" y="180" width="70" height="50" rx="6" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
-            <text x="225" y="200" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">Res C (7)</text>
-            <circle cx="210" cy="215" r="3" fill="#38bdf8"/><circle cx="225" cy="215" r="3" fill="#38bdf8"/><circle cx="240" cy="215" r="3" fill="#38bdf8"/>
-
-            <circle cx="70" cy="140" r="22" fill="#312e81" stroke="#818cf8" stroke-width="2"/>
-            <text x="70" y="144" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">P1</text>
-
-            <circle cx="380" cy="140" r="22" fill="#312e81" stroke="#818cf8" stroke-width="2"/>
-            <text x="380" y="144" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">P0</text>
-
-            <circle cx="225" cy="90" r="22" fill="#312e81" stroke="#818cf8" stroke-width="2"/>
-            <text x="225" y="94" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">P3</text>
-
-            <line x1="85" y1="80" x2="70" y2="118" stroke="#34d399" stroke-width="2"/>
-            <line x1="365" y1="80" x2="380" y2="118" stroke="#34d399" stroke-width="2"/>
-            <line x1="225" y1="180" x2="225" y2="112" stroke="#34d399" stroke-width="2"/>
-
-            <line x1="380" y1="118" x2="120" y2="60" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,4"/>
-            <line x1="70" y1="162" x2="190" y2="195" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,4"/>
-
-            <text x="225" y="250" fill="#94a3b8" font-size="10" text-anchor="middle">DFS Cycle Trace: 0 Directed Cycles Found</text>
+        <svg id="deadlockRagSvg" width="100%" height="240" viewBox="0 0 600 240" style="background: #0f172a; border-radius: 6px; border: 1px solid #334155;">
+            <!-- Dynamically rendered -->
         </svg>
     </div>
 </div>
@@ -2957,7 +2671,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
             </div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Interactive</span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: Real-Time Interactive</span>
             <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.6</span>
           </div>
         </div>
@@ -2965,7 +2679,7 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
 <div class="control-ribbon">
     <div class="control-group">
         <span class="control-label">Benchmark Workload:</span>
-        <select class="select-input">
+        <select id="benchWorkloadSelect" class="select-input" onchange="window.SimBench.run()">
             <option selected>Standard Academic Benchmark Suite (Batch 1)</option>
             <option>High-Contention Process Set (Poisson Arrival)</option>
             <option>Heavy-Seek Cylindrical Disk Workload</option>
@@ -2973,145 +2687,55 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         </select>
     </div>
     <div class="control-group">
-        <button class="btn btn-primary">Run Multi-Algorithm Benchmark</button>
-        <button class="btn btn-secondary">Export Benchmark CSV</button>
+        <button class="btn btn-primary" onclick="window.SimBench.run()">Run Multi-Algorithm Benchmark</button>
+        <button class="btn btn-secondary" onclick="window.SimBench.exportCSV()">Export Benchmark CSV</button>
     </div>
 </div>
 
 <div class="bench-grid">
     <div class="bench-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">CPU Scheduling (AWT Comparison)</span>
             <span class="badge badge-emerald">Winner: SRTF</span>
         </div>
-
-        <div class="bar-row">
-            <div class="bar-meta"><span>SRTF (Preemptive SJF)</span><span style="color: #34d399;">4.20 ms</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 56%; background: #10b981;">4.2 ms</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>SJF (Non-Preemptive)</span><span>4.60 ms</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 62%; background: #3b82f6;">4.6 ms</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>Priority (Preemptive)</span><span>5.20 ms</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 70%; background: #8b5cf6;">5.2 ms</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>FCFS</span><span>6.80 ms</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 91%; background: #f59e0b;">6.8 ms</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>Round Robin (q = 2)</span><span style="color: #fb7185;">7.40 ms</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #f43f5e;">7.4 ms</div></div>
+        <div id="benchCpuBars">
+            <!-- Dynamically populated -->
         </div>
     </div>
 
     <div class="bench-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Disk Head Movement (Seek Tracks)</span>
             <span class="badge badge-emerald">Winner: SSTF</span>
         </div>
-
-        <div class="bar-row">
-            <div class="bar-meta"><span>SSTF (Shortest Seek First)</span><span style="color: #34d399;">236 Tracks</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 37%; background: #10b981;">236</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>LOOK</span><span>291 Tracks</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 45%; background: #3b82f6;">291</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>C-LOOK</span><span>322 Tracks</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 50%; background: #06b6d4;">322</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>SCAN (Elevator)</span><span>331 Tracks</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 52%; background: #8b5cf6;">331</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>FCFS</span><span style="color: #fb7185;">640 Tracks</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #f43f5e;">640</div></div>
-        </div>
-    </div>
-
-    <div class="bench-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Page Replacement (Fault Count)</span>
-            <span class="badge badge-emerald">Optimal Lower Bound</span>
-        </div>
-
-        <div class="bar-row">
-            <div class="bar-meta"><span>Optimal (Theoretical Minimum)</span><span style="color: #34d399;">9 Faults</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 60%; background: #10b981;">9</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>LRU (Least Recently Used)</span><span style="color: #38bdf8;">12 Faults</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 80%; background: #3b82f6;">12</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>LFU (Least Frequently Used)</span><span>14 Faults</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 93%; background: #f59e0b;">14</div></div>
-        </div>
-        <div class="bar-row">
-            <div class="bar-meta"><span>FIFO (First In First Out)</span><span style="color: #fb7185;">15 Faults</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #f43f5e;">15</div></div>
+        <div id="benchDiskBars">
+            <!-- Dynamically populated -->
         </div>
     </div>
 </div>
 
 <div class="table-card">
     <div class="table-header">
-        <span>Holistic Algorithm Trade-Off & Efficiency Matrix</span>
-        <span class="badge badge-indigo">18 Total Policies</span>
+        <span>Cross-Domain Algorithmic Efficiency Matrix</span>
+        <span class="badge badge-emerald">Empirical Validation</span>
     </div>
     <table>
         <thead>
             <tr>
-                <th>Sub-System</th>
-                <th>Top Performing Policy</th>
-                <th>Key Optimization Metric</th>
-                <th>Runtime Complexity</th>
-                <th>Starvation Risk</th>
-                <th>Ideal Engineering Use Case</th>
+                <th>Algorithm</th>
+                <th>Domain</th>
+                <th>Primary Metric</th>
+                <th>Secondary Metric</th>
+                <th>Efficiency Score</th>
+                <th>Theoretical Standing</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td><strong>CPU Scheduling</strong></td>
-                <td><span style="color: #34d399; font-weight: bold;">SRTF (Preemptive SJF)</span></td>
-                <td>Minimal Average Waiting Time (4.20 ms)</td>
-                <td>O(log N)</td>
-                <td><span class="badge badge-rose">High (Long Jobs)</span></td>
-                <td>Batch Systems with known execution times</td>
-            </tr>
-            <tr>
-                <td><strong>Memory Placement</strong></td>
-                <td><span style="color: #38bdf8; font-weight: bold;">Best Fit</span></td>
-                <td>Minimizes partition space wastage</td>
-                <td>O(K) search</td>
-                <td><span class="badge badge-amber">Tiny External Holes</span></td>
-                <td>Embedded Systems with tight RAM budgets</td>
-            </tr>
-            <tr>
-                <td><strong>Page Replacement</strong></td>
-                <td><span style="color: #34d399; font-weight: bold;">LRU</span></td>
-                <td>Minimizes online miss penalties (12 faults)</td>
-                <td>O(1) Hash + List</td>
-                <td><span class="badge badge-emerald">None (Monotonic)</span></td>
-                <td>Virtual memory demand-paged OS kernels</td>
-            </tr>
-            <tr>
-                <td><strong>Disk Head Seek</strong></td>
-                <td><span style="color: #34d399; font-weight: bold;">LOOK / SCAN</span></td>
-                <td>291-331 Tracks (High throughput & fairness)</td>
-                <td>O(M log M)</td>
-                <td><span class="badge badge-emerald">Zero Starvation</span></td>
-                <td>High-density mechanical hard disk controllers</td>
-            </tr>
+        <tbody id="benchSummaryTableBody">
+            <!-- Dynamically populated -->
         </tbody>
     </table>
 </div>
+
       </div>
     </section>
 
@@ -3135,7 +2759,13 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
         if (tab === 'processes') fetchProcesses();
         if (tab === 'users') fetchUsers();
         if (tab === 'logs') fetchLogs();
-        if (tab === 'filesystem') fetchFileSystem();
+        if (tab === 'filesystem') window.FileSystemExplorer.init();
+        if (tab === 'sim-cpu') window.SimCpu.init();
+        if (tab === 'sim-memory' || tab === 'memory') window.SimMem.init();
+        if (tab === 'sim-paging') window.SimPaging.init();
+        if (tab === 'sim-disk') window.SimDisk.init();
+        if (tab === 'sim-deadlock') window.SimDeadlock.init();
+        if (tab === 'sim-comparison') window.SimBench.init();
         if (tab === 'network') fetchNetwork();
         if (tab === 'memory') fetchMemory();
         if (tab === 'telemetry') fetchTelemetryAndAnomalies();
@@ -4136,5 +3766,6 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
       drawNetworkActivityChart();
     });
   </script>
+  <script src="/static/simulators.js"></script>
 </body>
 </html>
