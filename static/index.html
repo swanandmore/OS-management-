@@ -1573,20 +1573,248 @@ tr:hover { background: rgba(56, 189, 248, 0.03); }
       </div>
     </section>
 
-    <!-- 3. MEMORY MANAGEMENT VIEW -->
+    
+    <!-- 3. MEMORY MANAGEMENT VIEW (Host Metrics + Section 6.5 Dynamic Partitioning Simulator) -->
     <section id="view-memory" class="view-section">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title-left">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
-            Physical RAM & Virtual Swap Configuration
+      
+      <!-- Top Sub-Tabs to toggle between Live Host RAM and Dynamic Partition Simulator -->
+      <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+        <button id="memTabSimBtn" class="primary-btn" onclick="switchMemTab('sim')" style="display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><line x1="8" y1="4" x2="8" y2="20"></line><line x1="16" y1="4" x2="16" y2="20"></line></svg>
+          Contiguous Memory Simulator (Figure 6.2)
+        </button>
+        <button id="memTabHostBtn" class="primary-btn" onclick="switchMemTab('host')" style="background: #1e2433; border-color: #334155; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect></svg>
+          Live Host System Memory
+        </button>
+      </div>
+
+      <!-- Tab 1: Section 6.5 Contiguous Memory Simulator (Default: Matches Report Fig 6.2) -->
+      <div id="memSubViewSim" style="display: block;">
+        <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          
+          <!-- Module Header Banner -->
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px 20px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #38bdf8); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: white;">MEM</div>
+              <div>
+                <div style="font-size: 16px; font-weight: 700; color: #ffffff;">Contiguous Memory Management & Dynamic Partitioning</div>
+                <div style="font-size: 11px; color: #94a3b8;">Section 6.5 Simulation Walkthrough Module | OSDS Course Project (VIT Pune)</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">● Engine: First Fit Active</span>
+              <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">Report Fig 6.2 (Page 19)</span>
+            </div>
           </div>
-          <button class="primary-btn" onclick="fetchMemory()">Refresh Memory</button>
+
+<div class="control-ribbon">
+    <div class="control-group">
+        <span class="control-label">Allocation Strategy:</span>
+        <div style="display: flex; gap: 6px;">
+            <div class="tab-pill active">First Fit (Active)</div>
+            <div class="tab-pill">Best Fit</div>
+            <div class="tab-pill">Worst Fit</div>
         </div>
-        <div id="memoryDetailedStats">
-          <div style="color: #8c93a8; padding: 20px; text-align: center;">Loading memory architecture...</div>
+    </div>
+    <div class="control-group">
+        <button class="btn btn-primary">+ Allocate Process</button>
+        <button class="btn btn-secondary">Deallocate Process...</button>
+        <button class="btn btn-secondary" style="background: #0369a1; color: white;">Run Memory Compaction</button>
+    </div>
+</div>
+
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-label">Total Physical Memory</div>
+        <div class="metric-val">1700 KB</div>
+        <div class="metric-sub">5 Initial Partitions</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Total Allocated Space</div>
+        <div class="metric-val cyan">1167 KB</div>
+        <div class="metric-sub">4 Active Processes</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Total Free Memory Holes</div>
+        <div class="metric-val emerald">533 KB</div>
+        <div class="metric-sub">Blocks 0, 2 & Block 4 tail</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Internal Fragmentation</div>
+        <div class="metric-val amber">476 KB</div>
+        <div class="metric-sub">Waste inside allocated blocks</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Allocation Efficiency</div>
+        <div class="metric-val emerald">68.6%</div>
+        <div class="metric-sub">External Frag: 0 KB</div>
+    </div>
+</div>
+
+<div class="mem-bar-box">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 700; font-size: 13px; color: #cbd5e1;">Continuous Physical Memory Address Space (0 KB - 1700 KB)</span>
+        <span class="badge badge-emerald">Mode: Variable Partition Allocation</span>
+    </div>
+    <div class="mem-visual-bar">
+        <div class="mem-seg free" style="width: 5.9%;">Block 0<br>(100K Free)</div>
+        <div class="mem-seg" style="width: 12.5%; background: #4f46e5;">P1: 212 KB</div>
+        <div class="mem-seg internal-frag" style="width: 16.9%;">Frag: 288 KB</div>
+        <div class="mem-seg free" style="width: 11.8%;">Block 2<br>(200K Free)</div>
+        <div class="mem-seg" style="width: 6.6%; background: #059669;">P3: 112 KB</div>
+        <div class="mem-seg internal-frag" style="width: 11.0%;">Frag: 188 KB</div>
+        <div class="mem-seg" style="width: 24.5%; background: #0891b2;">P2: 417 KB</div>
+        <div class="mem-seg free" style="width: 10.8%;">Block 4 Free (183 KB)</div>
+    </div>
+    <div class="mem-ticks">
+        <span>0 KB</span>
+        <span>100 KB</span>
+        <span>312 KB</span>
+        <span>600 KB</span>
+        <span>800 KB</span>
+        <span>912 KB</span>
+        <span>1100 KB</span>
+        <span>1517 KB</span>
+        <span>1700 KB</span>
+    </div>
+</div>
+
+<div class="two-col">
+    <div class="table-card">
+        <div class="table-header">
+            <span>Physical Memory Partition Map</span>
+            <span class="badge badge-indigo">5 Blocks</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Block</th>
+                    <th>Base Addr</th>
+                    <th>Block Size</th>
+                    <th>Occupant</th>
+                    <th>Used</th>
+                    <th>Internal Frag</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Block 0</td>
+                    <td>0 KB</td>
+                    <td>100 KB</td>
+                    <td>—</td>
+                    <td>0 KB</td>
+                    <td>0 KB</td>
+                    <td><span class="badge badge-amber">Free Hole</span></td>
+                </tr>
+                <tr>
+                    <td>Block 1</td>
+                    <td>100 KB</td>
+                    <td>500 KB</td>
+                    <td><strong>P1</strong></td>
+                    <td>212 KB</td>
+                    <td>288 KB</td>
+                    <td><span class="badge badge-emerald">Allocated</span></td>
+                </tr>
+                <tr>
+                    <td>Block 2</td>
+                    <td>600 KB</td>
+                    <td>200 KB</td>
+                    <td>—</td>
+                    <td>0 KB</td>
+                    <td>0 KB</td>
+                    <td><span class="badge badge-amber">Free Hole</span></td>
+                </tr>
+                <tr>
+                    <td>Block 3</td>
+                    <td>800 KB</td>
+                    <td>300 KB</td>
+                    <td><strong>P3</strong></td>
+                    <td>112 KB</td>
+                    <td>188 KB</td>
+                    <td><span class="badge badge-emerald">Allocated</span></td>
+                </tr>
+                <tr>
+                    <td>Block 4</td>
+                    <td>1100 KB</td>
+                    <td>600 KB</td>
+                    <td><strong>P2</strong></td>
+                    <td>417 KB</td>
+                    <td>0 KB (Split)</td>
+                    <td><span class="badge badge-emerald">Allocated</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-card">
+        <div class="table-header">
+            <span>Process Allocation Queue & Requests</span>
+            <span class="badge badge-emerald">All 4 Housed</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>PID</th>
+                    <th>Requested Size</th>
+                    <th>Assigned Block</th>
+                    <th>Block Base</th>
+                    <th>Algorithm Decision</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong style="color: #818cf8;">P1</strong></td>
+                    <td>212 KB</td>
+                    <td>Block 1 (500 KB)</td>
+                    <td>100 KB</td>
+                    <td>First partition >= 212 KB</td>
+                </tr>
+                <tr>
+                    <td><strong style="color: #22d3ee;">P2</strong></td>
+                    <td>417 KB</td>
+                    <td>Block 4 (600 KB)</td>
+                    <td>1100 KB</td>
+                    <td>First partition >= 417 KB</td>
+                </tr>
+                <tr>
+                    <td><strong style="color: #34d399;">P3</strong></td>
+                    <td>112 KB</td>
+                    <td>Block 2 (200 KB)</td>
+                    <td>600 KB</td>
+                    <td>First partition >= 112 KB</td>
+                </tr>
+                <tr>
+                    <td><strong style="color: #fb7185;">P4</strong></td>
+                    <td>426 KB</td>
+                    <td>Block 4 (Tail split)</td>
+                    <td>1517 KB</td>
+                    <td>Fits in remaining partition space</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
         </div>
       </div>
+
+      <!-- Tab 2: Live Host RAM & Virtual Swap -->
+      <div id="memSubViewHost" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+              Physical RAM & Virtual Swap Configuration (Live Host Workstation)
+            </div>
+            <button class="primary-btn" onclick="fetchMemory()">Refresh Memory</button>
+          </div>
+          <div id="memoryDetailedStats">
+            <div style="color: #8c93a8; padding: 20px; text-align: center;">Loading memory architecture...</div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <!-- 4. FILE SYSTEM VIEW -->
@@ -3873,6 +4101,27 @@ Type any command or click a quick action above. Type 'clear' or 'cls' to reset.
       }
 
       out.scrollTop = out.scrollHeight;
+    }
+
+    
+    // Switch between Simulator and Host view in Memory tab
+    function switchMemTab(tab) {
+      const simView = document.getElementById('memSubViewSim');
+      const hostView = document.getElementById('memSubViewHost');
+      const simBtn = document.getElementById('memTabSimBtn');
+      const hostBtn = document.getElementById('memTabHostBtn');
+      if (tab === 'sim') {
+        if (simView) simView.style.display = 'block';
+        if (hostView) hostView.style.display = 'none';
+        if (simBtn) { simBtn.style.background = '#00e5ff22'; simBtn.style.borderColor = '#00e5ff66'; simBtn.style.color = '#00e5ff'; }
+        if (hostBtn) { hostBtn.style.background = '#1e2433'; hostBtn.style.borderColor = '#334155'; hostBtn.style.color = '#94a3b8'; }
+      } else {
+        if (simView) simView.style.display = 'none';
+        if (hostView) hostView.style.display = 'block';
+        if (hostBtn) { hostBtn.style.background = '#00e5ff22'; hostBtn.style.borderColor = '#00e5ff66'; hostBtn.style.color = '#00e5ff'; }
+        if (simBtn) { simBtn.style.background = '#1e2433'; simBtn.style.borderColor = '#334155'; simBtn.style.color = '#94a3b8'; }
+        fetchMemory();
+      }
     }
 
     // Initial render
