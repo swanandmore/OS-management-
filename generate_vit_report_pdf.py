@@ -117,14 +117,6 @@ def build_pdf():
         spaceAfter=6
     )
 
-    bullet_style = ParagraphStyle(
-        'Bullet_Custom',
-        parent=body_style,
-        leftIndent=15,
-        firstLineIndent=-10,
-        spaceAfter=4
-    )
-
     table_cell = ParagraphStyle(
         'TableCell',
         parent=styles['Normal'],
@@ -163,13 +155,13 @@ def build_pdf():
     story.append(Spacer(1, 25))
 
     members_table = [
-        [Paragraph("<b>Submitted By:</b>", body_style), Paragraph("<b>PRN No.</b>", body_style)],
-        [Paragraph("Umar Jahangir (Roll No: B-21)", body_style), Paragraph("12210001", body_style)],
-        [Paragraph("Sahil Jalgaonkar (Roll No: B-25)", body_style), Paragraph("12210045", body_style)],
-        [Paragraph("Rushabh Kalme (Roll No: B-32)", body_style), Paragraph("12210089", body_style)],
-        [Paragraph("Shruti Khondre (Roll No: B-41)", body_style), Paragraph("12210115", body_style)],
+        [Paragraph("<b>Submitted By:</b>", body_style), Paragraph("<b>G.R. No.</b>", body_style)],
+        [Paragraph("Shaunak Kulkarni (Roll No: 23, Div: TY CBI-B)", body_style), Paragraph("1241336", body_style)],
+        [Paragraph("Jatin Jogale (Roll No: 04, Div: TY CBI-B)", body_style), Paragraph("12411744", body_style)],
+        [Paragraph("Swanand More (Roll No: 43, Div: TY CBI-B)", body_style), Paragraph("12411425", body_style)],
+        [Paragraph("Trunal Pawar (Roll No: 65, Div: TY CBI-B)", body_style), Paragraph("12415266", body_style)],
     ]
-    t_members = Table(members_table, colWidths=[280, 160])
+    t_members = Table(members_table, colWidths=[290, 150])
     t_members.setStyle(TableStyle([
         ('ALIGN', (0,0), (-1,-1), 'LEFT'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -177,7 +169,7 @@ def build_pdf():
         ('TOPPADDING', (0,0), (-1,-1), 3),
     ]))
     story.append(t_members)
-    story.append(Spacer(1, 25))
+    story.append(Spacer(1, 22))
 
     story.append(Paragraph("UNDER THE GUIDANCE OF", subtitle_style))
     story.append(Spacer(1, 4))
@@ -193,7 +185,7 @@ def build_pdf():
     story.append(Spacer(1, 25))
     cert_text = (
         "This is to certify that the Course Project titled <b>\"OS RESOURCE MANAGEMENT & ALGORITHM SIMULATOR\"</b> "
-        "submitted by <b>Umar Jahangir, Sahil Jalgaonkar, Rushabh Kalme, Shruti Khondre</b> is in partial fulfillment for the award "
+        "submitted by <b>Shaunak Kulkarni, Jatin Jogale, Swanand More, Trunal Pawar</b> is in partial fulfillment for the award "
         "of the Degree of <b>Bachelor of Technology in Computer Science and Engineering (IoT, Cybersecurity Including Blockchain Technology)</b> "
         "of Vishwakarma Institute of Technology, Savitribai Phule Pune University. This project report is a record of bonafide work "
         "carried out by them under the guidance of the undersigned during the academic year <b>2026-27</b>."
@@ -233,18 +225,19 @@ def build_pdf():
 
     story.append(Paragraph("<b>Team Members Details:</b>", h2_style))
     members_detail = [
-        [Paragraph("Roll No.", table_header), Paragraph("PRN No.", table_header), Paragraph("Name of Student", table_header), Paragraph("Contact No.", table_header), Paragraph("Email ID", table_header)],
-        [Paragraph("B-21", table_cell), Paragraph("12210001", table_cell), Paragraph("Umar Jahangir", table_cell), Paragraph("+91 9876543210", table_cell), Paragraph("umar.jahangir@vit.edu", table_cell)],
-        [Paragraph("B-25", table_cell), Paragraph("12210045", table_cell), Paragraph("Sahil Jalgaonkar", table_cell), Paragraph("+91 9876543211", table_cell), Paragraph("sahil.jalgaonkar@vit.edu", table_cell)],
-        [Paragraph("B-32", table_cell), Paragraph("12210089", table_cell), Paragraph("Rushabh Kalme", table_cell), Paragraph("+91 9876543212", table_cell), Paragraph("rushabh.kalme@vit.edu", table_cell)],
-        [Paragraph("B-41", table_cell), Paragraph("12210115", table_cell), Paragraph("Shruti Khondre", table_cell), Paragraph("+91 9876543213", table_cell), Paragraph("shruti.khondre@vit.edu", table_cell)],
+        [Paragraph("Sr.", table_header), Paragraph("Class & Div", table_header), Paragraph("Roll No.", table_header), Paragraph("G.R. No.", table_header), Paragraph("Name of Student", table_header), Paragraph("Contact No.", table_header), Paragraph("Email ID", table_header)],
+        [Paragraph("1", table_cell), Paragraph("TY CBI-B", table_cell), Paragraph("23", table_cell), Paragraph("1241336", table_cell), Paragraph("Shaunak Kulkarni", table_cell), Paragraph("8484997906", table_cell), Paragraph("shaunak.kulkarni24@vit.edu", table_cell)],
+        [Paragraph("2", table_cell), Paragraph("TY CBI-B", table_cell), Paragraph("04", table_cell), Paragraph("12411744", table_cell), Paragraph("Jatin Jogale", table_cell), Paragraph("8421229291", table_cell), Paragraph("jatin.jogale24@vit.edu", table_cell)],
+        [Paragraph("3", table_cell), Paragraph("TY CBI-B", table_cell), Paragraph("43", table_cell), Paragraph("12411425", table_cell), Paragraph("Swanand More", table_cell), Paragraph("9322100933", table_cell), Paragraph("swanand.more24@vit.edu", table_cell)],
+        [Paragraph("4", table_cell), Paragraph("TY CBI-B", table_cell), Paragraph("65", table_cell), Paragraph("12415266", table_cell), Paragraph("Trunal Pawar", table_cell), Paragraph("8380824880", table_cell), Paragraph("trunal.pawar24@vit.edu", table_cell)],
     ]
-    t_md = Table(members_detail, colWidths=[55, 65, 115, 95, 170])
+    t_md = Table(members_detail, colWidths=[20, 55, 42, 55, 95, 75, 155])
     t_md.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1e293b')),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ('ALIGN', (0,0), (3,-1), 'CENTER'),
     ]))
     story.append(t_md)
     story.append(Spacer(1, 14))
@@ -324,7 +317,7 @@ def build_pdf():
     story.append(Paragraph("5. Stallings, W. (2018). <i>Operating Systems: Internals and Design Principles</i>. Pearson.", body_style))
 
     doc.build(story, canvasmaker=NumberedCanvas)
-    print(f"Successfully generated course project report PDF at: {PDF_PATH}")
+    print(f"Successfully updated course project report PDF at: {PDF_PATH}")
 
 if __name__ == "__main__":
     build_pdf()

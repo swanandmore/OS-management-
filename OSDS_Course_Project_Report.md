@@ -14,10 +14,10 @@ on
 ---
 
 ### **Submitted By:**
-1. **Umar Jahangir** | Roll No: [Roll No 1] | PRN: [PRN 1]
-2. **Sahil Jalgaonkar** | Roll No: [Roll No 2] | PRN: [PRN 2]
-3. **Rushabh Kalme** | Roll No: [Roll No 3] | PRN: [PRN 3]
-4. **Shruti Khondre** | Roll No: [Roll No 4] | PRN: [PRN 4]
+1. **Shaunak Kulkarni** | Roll No: 23 | G.R. No: 1241336 | Class: TY CBI-B
+2. **Jatin Jogale** | Roll No: 04 | G.R. No: 12411744 | Class: TY CBI-B
+3. **Swanand More** | Roll No: 43 | G.R. No: 12411425 | Class: TY CBI-B
+4. **Trunal Pawar** | Roll No: 65 | G.R. No: 12415266 | Class: TY CBI-B
 
 ### **Under the Guidance of:**
 **Prof. Rupali Bathe**  
@@ -31,7 +31,7 @@ on
 
 # CERTIFICATE
 
-This is to certify that the Course Project titled **"OS RESOURCE MANAGEMENT & ALGORITHM SIMULATOR"** submitted by **Umar Jahangir, Sahil Jalgaonkar, Rushabh Kalme, Shruti Khondre** is in partial fulfillment for the award of the Degree of **Bachelor of Technology in Computer Science and Engineering (IoT, Cybersecurity Including Blockchain Technology)** of **Vishwakarma Institute of Technology, Savitribai Phule Pune University**. 
+This is to certify that the Course Project titled **"OS RESOURCE MANAGEMENT & ALGORITHM SIMULATOR"** submitted by **Shaunak Kulkarni, Jatin Jogale, Swanand More, Trunal Pawar** is in partial fulfillment for the award of the Degree of **Bachelor of Technology in Computer Science and Engineering (IoT, Cybersecurity Including Blockchain Technology)** of **Vishwakarma Institute of Technology, Savitribai Phule Pune University**. 
 
 This project report is a record of bonafide work carried out by them under the guidance of the undersigned during the academic year **2026-27**.
 
@@ -56,12 +56,12 @@ This project report is a record of bonafide work carried out by them under the g
 **Group No.:** B1-OSDS-09  
 
 ### **Members:**
-| Roll No. | PRN No. | Name of Student | Contact No. | Email ID |
-| :--- | :--- | :--- | :--- | :--- |
-| B-21 | 12210001 | Umar Jahangir | +91 9876543210 | umar.jahangir@vit.edu |
-| B-25 | 12210045 | Sahil Jalgaonkar | +91 9876543211 | sahil.jalgaonkar@vit.edu |
-| B-32 | 12210089 | Rushabh Kalme | +91 9876543212 | rushabh.kalme@vit.edu |
-| B-41 | 12210115 | Shruti Khondre | +91 9876543213 | shruti.khondre@vit.edu |
+| Sr. No. | Class & Div | Roll No. | G.R. No. | Name of Student | Contact No. | Email ID |
+| :---: | :---: | :---: | :---: | :--- | :---: | :--- |
+| 1 | TY CBI-B | 23 | 1241336 | Shaunak Kulkarni | 8484997906 | shaunak.kulkarni24@vit.edu |
+| 2 | TY CBI-B | 04 | 12411744 | Jatin Jogale | 8421229291 | jatin.jogale24@vit.edu |
+| 3 | TY CBI-B | 43 | 12411425 | Swanand More | 9322100933 | swanand.more24@vit.edu |
+| 4 | TY CBI-B | 65 | 12415266 | Trunal Pawar | 8380824880 | trunal.pawar24@vit.edu |
 
 **Academic Year:** 2026-27 (Third Year B.Tech)  
 **Subject:** Operating Systems and Distributed Systems (OSDS)  
